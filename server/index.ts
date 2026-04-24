@@ -4,10 +4,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { RESTAURANTS } from "../client/src/lib/data";
 import { applyDeliveryFeeOverrides } from "../shared/delivery-fees";
+import { applyRestaurantMenus } from "../shared/restaurant-menus";
 import {
   readDeliveryFeeDataset,
   syncDeliveryFeesFromUrl,
 } from "./deliveryFeeStore";
+import { readRestaurantMenusDataset } from "./restaurantMenuStore";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,12 +32,18 @@ async function startServer() {
 
   app.get("/api/restaurants", async (_req, res) => {
     try {
-      const dataset = await readDeliveryFeeDataset();
-      const restaurants = applyDeliveryFeeOverrides(RESTAURANTS, dataset);
+      const deliveryFees = await readDeliveryFeeDataset();
+      const menus = await readRestaurantMenusDataset();
+      const restaurants = applyRestaurantMenus(
+        applyDeliveryFeeOverrides(RESTAURANTS, deliveryFees),
+        menus
+      );
       res.json({
         restaurants,
-        deliveryFeesUpdatedAt: dataset.updatedAt,
-        deliveryFeesSource: dataset.source ?? null,
+        deliveryFeesUpdatedAt: deliveryFees.updatedAt,
+        deliveryFeesSource: deliveryFees.source ?? null,
+        menusUpdatedAt: menus.updatedAt,
+        menusSource: menus.source ?? null,
       });
     } catch (error) {
       console.error("Failed to load restaurants", error);
