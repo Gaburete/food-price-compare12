@@ -15,8 +15,9 @@
       "bolt": {
         "deliveryFee": 3.08,
         "serviceFee": 3,
+        "smallOrderFee": 7.1,
         "smallOrderThreshold": 40,
-        "dynamicSmallOrderFee": true,
+        "dynamicSmallOrderFee": false,
         "deliveryTime": 25,
         "available": true
       },
@@ -59,16 +60,18 @@
       "glovo": {
         "deliveryFee": 0,
         "serviceFee": 0,
+        "smallOrderFee": 4.62,
         "smallOrderThreshold": 40,
-        "dynamicSmallOrderFee": true,
+        "dynamicSmallOrderFee": false,
         "deliveryTime": 45,
         "available": true
       },
       "bolt": {
         "deliveryFee": 7.95,
         "serviceFee": 0.99,
+        "smallOrderFee": 4.62,
         "smallOrderThreshold": 40,
-        "dynamicSmallOrderFee": true,
+        "dynamicSmallOrderFee": false,
         "deliveryTime": 50,
         "available": true
       },
