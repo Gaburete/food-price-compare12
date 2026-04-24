@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-24T21:30:00.000Z",
+  "updatedAt": "2026-04-25T09:30:00.000Z",
   "source": "manual-constanta-tomis-47",
   "fees": {
     "mcdonalds-ct-1": {
@@ -17,6 +17,66 @@
         "smallOrderThreshold": 40,
         "dynamicSmallOrderFee": true,
         "deliveryTime": 25,
+        "available": true
+      },
+      "wolt": {
+        "deliveryFee": 4.99,
+        "serviceFee": 2.49,
+        "smallOrderFee": 0.2,
+        "smallOrderThreshold": 40,
+        "deliveryTime": 35,
+        "available": true
+      }
+    },
+    "kfc-ct-1": {
+      "glovo": {
+        "deliveryFee": 0,
+        "serviceFee": 0.62,
+        "smallOrderFee": 5.99,
+        "smallOrderThreshold": 40,
+        "deliveryTime": 35,
+        "available": true
+      },
+      "bolt": {
+        "deliveryFee": 0,
+        "serviceFee": 0.62,
+        "smallOrderFee": 5.99,
+        "smallOrderThreshold": 40,
+        "deliveryTime": 35,
+        "available": true
+      },
+      "wolt": {
+        "deliveryFee": 4.69,
+        "serviceFee": 2.65,
+        "smallOrderFee": 0,
+        "smallOrderThreshold": 0,
+        "deliveryTime": 30,
+        "available": true
+      }
+    },
+    "pizza-hut-ct-1": {
+      "glovo": {
+        "deliveryFee": 0,
+        "serviceFee": 0,
+        "smallOrderThreshold": 40,
+        "dynamicSmallOrderFee": true,
+        "deliveryTime": 45,
+        "available": true
+      },
+      "bolt": {
+        "deliveryFee": 7.95,
+        "serviceFee": 0.99,
+        "smallOrderThreshold": 40,
+        "dynamicSmallOrderFee": true,
+        "deliveryTime": 50,
+        "available": true
+      },
+      "wolt": {
+        "deliveryFee": 0,
+        "serviceFee": 2.49,
+        "smallOrderFee": 4,
+        "smallOrderThreshold": 35,
+        "deliveryTime": 35,
         "available": true
       }
     }
