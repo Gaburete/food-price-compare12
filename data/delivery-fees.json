@@ -6,8 +6,9 @@
       "glovo": {
         "deliveryFee": 0,
         "serviceFee": 0.62,
+        "smallOrderFee": 5.99,
         "smallOrderThreshold": 40,
-        "dynamicSmallOrderFee": true,
+        "dynamicSmallOrderFee": false,
         "deliveryTime": 20,
         "available": true
       },
