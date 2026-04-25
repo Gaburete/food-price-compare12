@@ -32,20 +32,36 @@ export async function scrapeBolt(context: BrowserContext, address: string) {
           }
         }
 
-        // 3. Extragem datele
-        // Aici vom adăuga logica reală când primim selectorii
+        // 3. Extragem datele reale din componentele Bolt Food
         let extracted = {
           deliveryFee: 7.99,
           serviceFeePercent: null, // Bolt Food are adesea o taxă fixă de serviciu
-          serviceFee: 3.19, // Fixed
-          smallOrderFee: 0.10, // Diferența fixă sau calculată
-          smallOrderThreshold: 40,
+          serviceFee: 0,
+          smallOrderFee: 0,
+          smallOrderThreshold: 40, // Fallback
         };
+
+        const feeItems = await page.locator('[data-testid="components.OrderFees.feeItem"]').all();
+
+        for (const item of feeItems) {
+          const text = await item.textContent() || "";
+          const match = text.match(/([\d,]+)\s*lei/i);
+          const val = match ? parseFloat(match[1].replace(',', '.')) : 0;
+
+          if (text.toLowerCase().includes('livrare')) {
+            extracted.deliveryFee = val;
+          } else if (text.toLowerCase().includes('serviciu')) {
+            extracted.serviceFee = val;
+          } else if (text.toLowerCase().includes('minimă')) {
+            // Bolt afișează suprataxa fixă pentru comanda curentă (nu diferența calculabilă, ci suma exactă)
+            extracted.smallOrderFee = val;
+          }
+        }
 
         fees[rest.id] = {
           bolt: {
             ...extracted,
-            dynamicSmallOrderFee: false, // Dacă e diferență dinamică, vom schimba în true
+            dynamicSmallOrderFee: false, // Folosim suma fixă extrasă
             deliveryTime: 25
           }
         };
