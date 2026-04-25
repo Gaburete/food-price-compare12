@@ -6,8 +6,9 @@ WORKDIR /app
 # Instalăm pnpm (managerul tău de pachete)
 RUN npm install -g pnpm
 
-# Copiem fișierele de configurare
+# Copiem fișierele de configurare și patch-urile
 COPY package.json ./
+COPY patches ./patches
 
 # Instalăm dependențele
 RUN pnpm install
