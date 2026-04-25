@@ -7,9 +7,10 @@ import { applyDeliveryFeeOverrides } from "../shared/delivery-fees";
 import { applyRestaurantMenus } from "../shared/restaurant-menus";
 import {
   readDeliveryFeeDataset,
-  syncDeliveryFeesFromUrl,
+  writeDeliveryFeeDataset,
 } from "./deliveryFeeStore";
 import { readRestaurantMenusDataset } from "./restaurantMenuStore";
+import { runScrapers } from "../scripts/scraper/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,18 +70,31 @@ async function startServer() {
       return;
     }
 
-    if (!syncSourceUrl) {
-      res.status(400).json({ error: "DELIVERY_FEES_SOURCE_URL is not set" });
-      return;
-    }
-
     try {
-      const dataset = await syncDeliveryFeesFromUrl(syncSourceUrl);
+      console.log("Pornim scraper-ul pentru Bulevardul Tomis, 47...");
+      const addressToScrape = req.body.address || "Bulevardul Tomis 47, Constanta";
+      const scrapedFees = await runScrapers(addressToScrape);
+
+      const dataset = {
+        updatedAt: new Date().toISOString(),
+        source: "playwright-scraper",
+        fees: {
+          "kfc-buc-1": {
+            ...(scrapedFees.glovo?.["kfc-buc-1"] ? { glovo: scrapedFees.glovo["kfc-buc-1"] } : {}),
+            ...(scrapedFees.bolt?.["kfc-buc-1"] ? { bolt: scrapedFees.bolt["kfc-buc-1"] } : {}),
+            ...(scrapedFees.wolt?.["kfc-buc-1"] ? { wolt: scrapedFees.wolt["kfc-buc-1"] } : {})
+          }
+        }
+      };
+
+      await writeDeliveryFeeDataset(dataset as any);
+
       res.json({
         ok: true,
         updatedAt: dataset.updatedAt,
         source: dataset.source ?? null,
         restaurantCount: RESTAURANTS.length,
+        scrapedFees
       });
     } catch (error) {
       console.error("Delivery fee sync failed", error);
