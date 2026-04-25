@@ -5,32 +5,54 @@ export async function scrapeBolt(context: BrowserContext, address: string) {
   const fees: Record<string, any> = {};
 
   try {
-    // 1. Mergem pe pagina principală Bolt Food Constanța
-    await page.goto("https://food.bolt.eu/ro-ro/462-constanta/", { waitUntil: 'domcontentloaded' });
-    
-    // 2. Setăm adresa (Dacă Bolt cere introducerea adresei pe web)
-    // await page.click('input[placeholder="Introdu adresa"]');
-    // await page.fill('input[placeholder="Introdu adresa"]', address);
-    // await page.waitForTimeout(2000);
-    // await page.keyboard.press('Enter');
-    
+    await page.goto("https://food.bolt.eu/ro-ro/bucuresti/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     const restaurantsToScrape = [
-      { id: "kfc-buc-1", url: "https://food.bolt.eu/ro-ro/462-constanta/p/kfc-tomis" }
+      { id: "kfc-buc-1", url: "https://food.bolt.eu/ro-ro/bucuresti/p/kfc-unirii" },
+      { id: "mcdonalds-buc-1", url: "https://food.bolt.eu/ro-ro/bucuresti/p/mcdonalds-unirii" }
     ];
 
     for (const rest of restaurantsToScrape) {
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(2000);
 
-      // Aici extragem taxa de livrare
-      // const deliveryText = await page.textContent('.bolt-delivery-fee-selector');
+      try {
+        // 1. Apăsăm pe primul produs
+        const firstProduct = page.locator('div[data-test="restaurant-menu-item"]').first();
+        if (await firstProduct.count() > 0) {
+          await firstProduct.click();
+          await page.waitForTimeout(1000);
 
-      fees[rest.id] = {
-        deliveryFee: 5.99,
-        serviceFee: 1.99
-      };
+          // 2. Apăsăm adaugă în coș
+          const addToCartBtn = page.locator('button[data-test="add-to-cart"]').first();
+          if (await addToCartBtn.count() > 0) {
+            await addToCartBtn.click();
+            await page.waitForTimeout(1000);
+          }
+        }
+
+        // 3. Extragem datele
+        // Aici vom adăuga logica reală când primim selectorii
+        let extracted = {
+          deliveryFee: 7.99,
+          serviceFeePercent: null, // Bolt Food are adesea o taxă fixă de serviciu
+          serviceFee: 3.19, // Fixed
+          smallOrderFee: 0.10, // Diferența fixă sau calculată
+          smallOrderThreshold: 40,
+        };
+
+        fees[rest.id] = {
+          bolt: {
+            ...extracted,
+            dynamicSmallOrderFee: false, // Dacă e diferență dinamică, vom schimba în true
+            deliveryTime: 25
+          }
+        };
+
+      } catch (e) {
+        console.error(`Eroare scraping Bolt pentru ${rest.id}:`, e);
+      }
     }
 
   } finally {
