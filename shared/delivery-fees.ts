@@ -3,6 +3,9 @@ import type { Restaurant } from "../client/src/lib/data";
 export type DeliveryFeeOverride = Partial<{
   deliveryFee: number;
   serviceFee: number;
+  serviceFeePercent: number | null;
+  serviceFeeMin: number | null;
+  serviceFeeMax: number | null;
   smallOrderFee: number | null;
   smallOrderThreshold: number | null;
   dynamicSmallOrderFee: boolean;
@@ -34,6 +37,15 @@ function sanitizeOverride(input: DeliveryFeeOverride): DeliveryFeeOverride {
   }
   if (isFiniteNumber(input.serviceFee)) {
     sanitized.serviceFee = input.serviceFee;
+  }
+  if (input.serviceFeePercent === null || isFiniteNumber(input.serviceFeePercent)) {
+    sanitized.serviceFeePercent = input.serviceFeePercent;
+  }
+  if (input.serviceFeeMin === null || isFiniteNumber(input.serviceFeeMin)) {
+    sanitized.serviceFeeMin = input.serviceFeeMin;
+  }
+  if (input.serviceFeeMax === null || isFiniteNumber(input.serviceFeeMax)) {
+    sanitized.serviceFeeMax = input.serviceFeeMax;
   }
   if (input.smallOrderFee === null || isFiniteNumber(input.smallOrderFee)) {
     sanitized.smallOrderFee = input.smallOrderFee;

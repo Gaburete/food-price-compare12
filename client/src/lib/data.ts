@@ -30,7 +30,10 @@ export interface PlatformData {
   platform: Platform;
   available: boolean;
   deliveryFee: number;      // RON — taxa de livrare
-  serviceFee: number;       // RON — taxa de servicii
+  serviceFee: number;       // RON — taxa de servicii (valoare fixă de rezervă)
+  serviceFeePercent?: number; // procent (ex: 0.06) din comandă
+  serviceFeeMin?: number;     // limita minimă (ex: 2.49 RON)
+  serviceFeeMax?: number;     // limita maximă (ex: 7.99 RON)
   smallOrderFee?: number;   // RON — taxă comandă mică fixă (opțională, se aplică sub un prag)
   smallOrderThreshold?: number; // RON — pragul sub care se aplică taxa (ex: 40)
   dynamicSmallOrderFee?: boolean; // dacă true, taxa = max(0, threshold - productPrice) ex: Glovo
@@ -87,6 +90,51 @@ export const PLATFORM_INFO: Record<Platform, { name: string; color: string; bgCo
     textColor: "text-sky-700",
   },
 };
+
+export function calculateTotalFees(
+  platformData: PlatformData,
+  productPrice: number = 0
+): {
+  totalFee: number;
+  deliveryFee: number;
+  serviceFee: number;
+  smallOrderFee: number;
+} {
+  const deliveryFee = platformData.deliveryFee;
+
+  let smallOrderFee = 0;
+  if (
+    platformData.smallOrderThreshold &&
+    productPrice > 0 &&
+    productPrice < platformData.smallOrderThreshold
+  ) {
+    if (platformData.dynamicSmallOrderFee) {
+      smallOrderFee = Math.max(0, platformData.smallOrderThreshold - productPrice);
+    } else if (platformData.smallOrderFee) {
+      smallOrderFee = platformData.smallOrderFee;
+    }
+  }
+
+  let serviceFee = platformData.serviceFee;
+  if (platformData.serviceFeePercent != null) {
+    // Calculăm procentul din valoarea comenzii (fără taxa de livrare)
+    serviceFee = productPrice * platformData.serviceFeePercent;
+    
+    if (platformData.serviceFeeMin != null && serviceFee < platformData.serviceFeeMin) {
+      serviceFee = platformData.serviceFeeMin;
+    }
+    if (platformData.serviceFeeMax != null && serviceFee > platformData.serviceFeeMax) {
+      serviceFee = platformData.serviceFeeMax;
+    }
+  }
+
+  return {
+    totalFee: deliveryFee + serviceFee + smallOrderFee,
+    deliveryFee,
+    serviceFee,
+    smallOrderFee,
+  };
+}
 
 export const RESTAURANTS: Restaurant[] = [
   // ===== BUCUREȘTI =====
@@ -2568,11 +2616,9 @@ export function getProductTotal(
 ): number {
   const p = restaurant.platforms.find((pl) => pl.platform === platform);
   if (!p || !p.available) return Infinity;
-  const smallOrderFee =
-    p.smallOrderFee && p.smallOrderThreshold && productPrice < p.smallOrderThreshold
-      ? p.smallOrderFee
-      : 0;
-  return productPrice + p.deliveryFee + p.serviceFee + smallOrderFee;
+  
+  const { totalFee } = calculateTotalFees(p, productPrice);
+  return productPrice + totalFee;
 }
 
 // Platforma cu cel mai mic preț total pentru un produs
@@ -2594,10 +2640,13 @@ export function getCheapestForProduct(
 export function getCheapestPlatform(platforms: PlatformData[]): Platform | null {
   const available = platforms.filter((p) => p.available);
   if (available.length === 0) return null;
+  
   // Folosim taxa de livrare + servicii ca indicator general
-  return available.reduce((min, p) =>
-    p.deliveryFee + p.serviceFee < min.deliveryFee + min.serviceFee ? p : min
-  ).platform;
+  return available.reduce((min, p) => {
+    const minFees = calculateTotalFees(min, 0);
+    const pFees = calculateTotalFees(p, 0);
+    return (pFees.deliveryFee + pFees.serviceFee) < (minFees.deliveryFee + minFees.serviceFee) ? p : min;
+  }).platform;
 }
 
 // Caută restaurante după nume și oraș

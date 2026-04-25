@@ -28,9 +28,11 @@ import {
   getCheapestPlatform,
   getCheapestForProduct,
   searchRestaurantsInCollection,
+  calculateTotalFees,
   type Restaurant,
   type MenuItem,
   type Platform,
+  type PlatformData,
 } from "@/lib/data";
 
 // ─── Platform Logo Components ────────────────────────────────
@@ -68,16 +70,7 @@ const PlatformLogos: Record<Platform, React.FC> = {
 // ─── PlatformCard Component ───────────────────────────────────
 interface PlatformCardProps {
   platform: Platform;
-  data: {
-    available: boolean;
-    deliveryFee: number;
-    serviceFee: number;
-    smallOrderFee?: number;
-    smallOrderThreshold?: number;
-    dynamicSmallOrderFee?: boolean;
-    deliveryTime: number;
-    deepLink: string;
-  };
+  data: PlatformData;
   productPrice?: number;  // prețul produsului specific (dacă există)
   isCheapest: boolean;
   index: number;
@@ -86,28 +79,9 @@ interface PlatformCardProps {
 function PlatformCard({ platform, data, productPrice, isCheapest, index }: PlatformCardProps) {
   const info = PLATFORM_INFO[platform];
   const Logo = PlatformLogos[platform];
-  // Taxa comandă mică fixă (ex: Bolt Food — sumă fixă dacă sub prag)
-  const appliesSmallOrderFee =
-    data.smallOrderFee !== undefined &&
-    data.smallOrderThreshold !== undefined &&
-    productPrice !== undefined &&
-    productPrice < data.smallOrderThreshold;
-  const fixedSmallOrderFeeAmount = appliesSmallOrderFee ? (data.smallOrderFee ?? 0) : 0;
-
-  // Taxa comandă mică dinamică (ex: Glovo — diferența până la prag)
-  const applyDynamicFee =
-    data.dynamicSmallOrderFee === true &&
-    data.smallOrderThreshold !== undefined &&
-    productPrice !== undefined &&
-    productPrice < data.smallOrderThreshold;
-  const dynamicSmallOrderFeeAmount = applyDynamicFee
-    ? Math.max(0, (data.smallOrderThreshold ?? 0) - (productPrice ?? 0))
-    : 0;
-
-  const smallOrderFeeAmount = fixedSmallOrderFeeAmount + dynamicSmallOrderFeeAmount;
-  const total = data.available
-    ? (productPrice ?? 0) + data.deliveryFee + data.serviceFee + smallOrderFeeAmount
-    : Infinity;
+  
+  const { totalFee, deliveryFee, serviceFee, smallOrderFee } = calculateTotalFees(data, productPrice ?? 0);
+  const total = data.available ? (productPrice ?? 0) + totalFee : Infinity;
 
   const platformColors: Record<Platform, { ring: string; badge: string; btn: string; btnHover: string; glow: string }> = {
     glovo: {
@@ -195,18 +169,18 @@ function PlatformCard({ platform, data, productPrice, isCheapest, index }: Platf
                 <span className="text-gray-500">Taxă livrare</span>
                 <span className="font-semibold text-gray-800">{data.deliveryFee.toFixed(2)} RON</span>
               </div>
-              {data.serviceFee > 0 && (
+              {serviceFee > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Taxă servicii</span>
-                  <span className="font-semibold text-gray-800">{data.serviceFee.toFixed(2)} RON</span>
+                  <span className="font-semibold text-gray-800">{serviceFee.toFixed(2)} RON</span>
                 </div>
               )}
-              {(appliesSmallOrderFee || applyDynamicFee) && smallOrderFeeAmount > 0 && (
+              {smallOrderFee > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-amber-600 font-medium flex items-center gap-1">
                     ⚠️ Taxă comandă mică
                   </span>
-                  <span className="font-semibold text-amber-700">{smallOrderFeeAmount.toFixed(2)} RON</span>
+                  <span className="font-semibold text-amber-700">{smallOrderFee.toFixed(2)} RON</span>
                 </div>
               )}
               <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-bold">
