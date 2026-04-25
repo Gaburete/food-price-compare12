@@ -32,20 +32,37 @@ export async function scrapeWolt(context: BrowserContext, address: string) {
           }
         }
 
-        // 3. Extragem datele
-        // Aici vom adăuga logica reală când primim selectorii pentru Wolt
+        // 3. Extragem datele reale din componentele Wolt
         let extracted = {
           deliveryFee: 10.19,
-          serviceFeePercent: null,
-          serviceFee: 2.79, // Wolt are de obicei taxă fixă de serviciu care se schimbă
-          smallOrderFee: 0, // Wolt poate adăuga "suprataxă pentru comandă mică"
-          smallOrderThreshold: null, 
+          serviceFeePercent: 0.07, // Extras din textul lor "7%"
+          serviceFeeMin: 2.49,     // Extras din "minimum 2,49"
+          serviceFeeMax: 7.99,     // Extras din "maximum 7,99"
+          serviceFee: 0, 
+          smallOrderFee: 0,
+          smallOrderThreshold: 35, // Extras din "mai mic decât 35,00 RON"
         };
+
+        const feeRows = await page.locator('[data-test-id="AmountRow"]').all();
+
+        for (const row of feeRows) {
+          const text = await row.textContent() || "";
+          const match = text.match(/([\d,]+)\s*RON/i);
+          const val = match ? parseFloat(match[1].replace(',', '.')) : 0;
+
+          if (text.toLowerCase().includes('livrare')) {
+            extracted.deliveryFee = val;
+          } else if (text.toLowerCase().includes('operațional') || text.toLowerCase().includes('serviciu')) {
+            extracted.serviceFee = val;
+          } else if (text.toLowerCase().includes('comandă mică')) {
+            extracted.smallOrderFee = val;
+          }
+        }
 
         fees[rest.id] = {
           wolt: {
             ...extracted,
-            dynamicSmallOrderFee: true, // Diferența dintre comandă și prag, la fel ca Glovo
+            dynamicSmallOrderFee: true, // Diferența dintre comandă și prag, exact ca la Glovo
             deliveryTime: 20
           }
         };
