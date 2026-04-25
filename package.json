@@ -10,7 +10,8 @@
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
-    "sync:delivery-fees": "tsx scripts/sync-delivery-fees.ts"
+    "sync:delivery-fees": "tsx scripts/sync-delivery-fees.ts",
+    "postinstall": "npx playwright install chromium"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
