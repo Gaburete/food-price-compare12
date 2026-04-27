@@ -2609,9 +2609,8 @@ export const RESTAURANTS: Restaurant[] = [
                   }
             ]
       }
-]
-  },
-  {
+    },
+    {
     id: "mcdonalds-constanta",
     name: "McDonald's",
     category: "Burger",
