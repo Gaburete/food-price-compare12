@@ -2312,8 +2312,7 @@ export const RESTAURANTS: Restaurant[] = [
                   }
             ]
       }
-]
-  },
+    },
       {
             "id": "dabo-mixt-dabo",
             "name": "MIXT DAbo",
