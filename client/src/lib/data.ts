@@ -2649,277 +2649,282 @@ export const RESTAURANTS: Restaurant[] = [
       }
     ],
     menu: [
-      {
-              "id": "mcd-meniu-maxi-big-mac",
-              "name": "Meniu Maxi Big Mac™",
-              "description": "Big Mac™, porție mare cartofi prăjiți, băutură răcoritoare mare",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 32.9,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 32.9,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 32.9,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-meniu-maxi-mcchicken",
-              "name": "Meniu Maxi McChicken™",
-              "description": "McChicken™, porție mare cartofi prăjiți, băutură răcoritoare mare",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 31.9,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 31.9,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 31.9,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-meniu-maxi-big-tasty",
-              "name": "Meniu Maxi Big Tasty™",
-              "description": "Big Tasty™, porție mare cartofi prăjiți, băutură răcoritoare mare",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 39.9,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 39.9,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 39.9,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-grande-home-menu",
-              "name": "GRANDE HOME MENU",
-              "description": "3 burgeri mari la alegere, 3 porții mari cartofi, 9 McNuggets cu 2 sosuri și 3 plăcinte cu vișine",
-              "category": "Meniuri de familie",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 109.9,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 109.9,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 109.9,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-home-menu",
-              "name": "HOME MENU",
-              "description": "2 burgeri la alegere, 2 porții mari cartofi, 6 McNuggets (1 sos inclus) și 2 plăcinte cu vișine",
-              "category": "Meniuri de familie",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 79.9,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 79.9,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 79.9,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-meniu-mcnuggets-friends",
-              "name": "MENIU MCNUGGETS FRIENDS",
-              "description": "9 McNuggets, 2 sosuri incluse, o porție mare de cartofi, băutură răcoritoare și o jucărie",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 47.9,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 47.9,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 47.9,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-meniu-cheesy-jalapeno-bacon-quarter-pounder-mare",
-              "name": "MENIU CHEESY JALAPENO BACON QUARTER POUNDER MARE",
-              "description": "Cheesy Jalapeno Bacon Quarter Pounder, porție mare cartofi prăjiți, băutură răcoritoare mare",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 42.5,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 42.5,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 42.5,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-meniu-big-mac-friends",
-              "name": "MENIU BIG MAC FRIENDS",
-              "description": "Big Mac™, porție mare cartofi prăjiți, băutură răcoritoare mare și o jucărie",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 39.5,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 39.5,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 39.5,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-meniu-mcchicken-bacon-bbq-mare",
-              "name": "MENIU McCHICKEN BACON BBQ MARE",
-              "description": "McChicken™ Bacon BBQ, porție mare cartofi prăjiți, băutură răcoritoare mare",
-              "category": "Meniuri",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 36.2,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 36.2,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 36.2,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      },
-      {
-              "id": "mcd-cheesy-jalapeno-bacon-quarter-pounder",
-              "name": "CHEESY JALAPENO BACON QUARTER POUNDER 180G",
-              "description": "Burgeri cu vită, brânză Cheddar, bacon și jalapeno",
-              "category": "Burger",
-              "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
-              "prices": [
-                      {
-                              "platform": "glovo",
-                              "available": true,
-                              "price": 28.8,
-                              "deepLink": "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta"
-                      },
-                      {
-                              "platform": "bolt",
-                              "available": true,
-                              "price": 28.8,
-                              "deepLink": "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/"
-                      },
-                      {
-                              "platform": "wolt",
-                              "available": true,
-                              "price": 28.8,
-                              "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
-                      }
-              ]
-      }
-    ]
+        {
+                id: "mcd-home-menu",
+                name: "HOME MENU",
+                description: "Ai 2 burgeri la alegere + 2 porții medii de cartofi + 2 băuturi medii",
+                price: 79.9,
+                category: "Editie Limitata",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 79.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 79.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 79.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-meniu-mare-chicken-mcnuggets-9-bucati",
+                name: "MENIU MARE CHICKEN MCNUGGETS 9 BUCATI",
+                description: "9 bucăți pui, cartofi mari, băutură mare, 2 sosuri",
+                price: 40.9,
+                category: "Meniuri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 40.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 40.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 40.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-meniu-maxi-big-tasty-",
+                name: "Meniu Maxi Big Tasty™",
+                description: "Burger Big Tasty, cartofi mari, băutură mare",
+                price: 39.9,
+                category: "Meniuri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 39.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 39.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 39.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-meniu-aripioare-de-pui-5-bucati-mare",
+                name: "MENIU ARIPIOARE DE PUI 5 BUCATI MARE",
+                description: "5 aripioare picante, cartofi mari, băutură mare",
+                price: 39.9,
+                category: "Meniuri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 39.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 39.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 39.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-meniu-maxi-big-mac-",
+                name: "Meniu Maxi Big Mac™",
+                description: "Meniu Maxi Big Mac™",
+                price: 32.9,
+                category: "Meniuri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 32.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 32.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 32.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-big-mac-burger",
+                name: "BIG MAC BURGER",
+                description: "BIG MAC BURGER",
+                price: 19.4,
+                category: "Burgeri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 19.4,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 19.4,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 19.4,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-mcchicken-burger",
+                name: "MCCHICKEN BURGER",
+                description: "MCCHICKEN BURGER",
+                price: 19.9,
+                category: "Burgeri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 19.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 19.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 19.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-cheeseburger-113g",
+                name: "CHEESEBURGER 113G",
+                description: "CHEESEBURGER 113G",
+                price: 8.9,
+                category: "Burgeri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 8.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 8.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 8.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-hamburger-100g",
+                name: "HAMBURGER 100G",
+                description: "HAMBURGER 100G",
+                price: 7.9,
+                category: "Burgeri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 7.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 7.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 7.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-cartofi-prajiti-portie-mare",
+                name: "CARTOFI PRAJITI PORTIE MARE",
+                description: "CARTOFI PRAJITI PORTIE MARE",
+                price: 13.9,
+                category: "Cartofi",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 13.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 13.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 13.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "mcd-sos-usturoi",
+                name: "SOS USTUROI",
+                description: "SOS USTUROI",
+                price: 5.2,
+                category: "Sosuri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 5.2,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 5.2,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 5.2,
+                                available: false
+                        }
+                ]
+        }
+]
   },
   { id: "kfc-constanta",
     name: "KFC City Park",
@@ -2935,8 +2940,207 @@ export const RESTAURANTS: Restaurant[] = [
       { platform: "wolt", available: true, deliveryFee: 9.99, serviceFee: 0, deliveryTime: 20, deepLink: "https://wolt.com/en/rou/constanta/restaurant/kfc-city-park-67ee912b0231e21086424409" },
     ],
     menu: [
-      // ── MENIURI MARI ─────────────────────────────────────────
-      ]
+        {
+                id: "kfc-giant-bucket",
+                name: "Giant Bucket",
+                description: "10 Crispy Strips, 10 Hot Wings, 10 Fillet Bites, 4 portii mari cartofi",
+                price: 127,
+                category: "Buckets",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 127,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 127,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 127,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-american-bucket",
+                name: "American Bucket",
+                description: "10 Crispy Strips, 10 Hot Wings",
+                price: 83.5,
+                category: "Buckets",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 83.5,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 83.5,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 83.5,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-so-good-bucket",
+                name: "So Good Bucket",
+                description: "10 Fillet Bites, 10 Hot Wings, 2 portii medii cartofi",
+                price: 76,
+                category: "Buckets",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 76,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 76,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 76,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-meniu-5-crispy-strips-picanti",
+                name: "Meniu 5 Crispy Strips® Picanti",
+                description: "5 Crispy, cartofi mari, bautura, sos",
+                price: 54.9,
+                category: "Meniuri",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 54.9,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 54.9,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 54.9,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-box-for-one",
+                name: "Box for one",
+                description: "3 Crispy, 4 Hot Wings, cartofi mari, bautura",
+                price: 51,
+                category: "Boxes",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 51,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 51,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 51,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-bacon-twister-picant",
+                name: "Bacon Twister Picant",
+                description: "Bacon Twister Picant",
+                price: 45.4,
+                category: "Burgeri & Wraps",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 45.4,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 45.4,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 45.4,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-zinger-burger",
+                name: "Zinger Burger",
+                description: "Zinger Burger",
+                price: 24.5,
+                category: "Burgeri & Wraps",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 24.5,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 24.5,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 24.5,
+                                available: false
+                        }
+                ]
+        },
+        {
+                id: "kfc-trio-mousse-ciocolat-",
+                name: "Trio Mousse Ciocolată",
+                description: "Trio Mousse Ciocolată",
+                price: 20,
+                category: "Deserturi",
+                imageUrl: "https://images.unsplash.com/photo-1513639733132-c15613843d5b?auto=format&fit=crop&q=80&w=400",
+                prices: [
+                        {
+                                platform: "glovo",
+                                price: 20,
+                                available: true
+                        },
+                        {
+                                platform: "bolt",
+                                price: 20,
+                                available: false
+                        },
+                        {
+                                platform: "wolt",
+                                price: 20,
+                                available: false
+                        }
+                ]
+        }
+]
     },
   { id: "mcdonalds-buc-1",
     name: "McDonald's",
