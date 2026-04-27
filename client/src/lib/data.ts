@@ -2608,9 +2608,8 @@ export const RESTAURANTS: Restaurant[] = [
                         "deepLink": "https://wolt.com/en/rou/constanta/restaurant/dabo-doner-mircea-constana-00a224"
                   }
             ]
-      }
-    },
-    {
+      },
+      {
     id: "mcdonalds-constanta",
     name: "McDonald's",
     category: "Burger",
@@ -2920,10 +2919,8 @@ export const RESTAURANTS: Restaurant[] = [
                               "deepLink": "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401"
                       }
               ]
-      }
-    ]
-  },
-  {
+      },
+      {
     id: "kfc-buc-1",
     name: "KFC City Park",
     category: "Fast Food",
@@ -8350,7 +8347,7 @@ export const RESTAURANTS: Restaurant[] = [
     ]
   },
   {
-    id: "pizzahut-constanta"
+    id: "pizzahut-constanta",
     name: "Pizza Hut Constanța",
     category: "Pizza",
     deliveryTime: "30-50",
