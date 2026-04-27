@@ -2311,8 +2311,7 @@ export const RESTAURANTS: Restaurant[] = [
                         "deepLink": "https://wolt.com/en/rou/constanta/restaurant/dabo-doner-mircea-constana-00a224"
                   }
             ]
-      }
-    },
+      },
       {
             "id": "dabo-mixt-dabo",
             "name": "MIXT DAbo",
