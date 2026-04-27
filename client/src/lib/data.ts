@@ -16535,7 +16535,9 @@ export const RESTAURANTS: Restaurant[] = [
       }
     ]
   }
-];
+
+}}
+]];
 
 // ─── Funcții helper ───────────────────────────────────────────
 
