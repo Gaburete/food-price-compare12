@@ -5,12 +5,14 @@ export async function scrapeWolt(context: BrowserContext, address: string) {
   const fees: Record<string, any> = {};
 
   try {
-    await page.goto("https://wolt.com/ro/rou/bucuresti/", { waitUntil: 'domcontentloaded' });
+    await page.goto("https://wolt.com/ro/rou/constanta/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     const restaurantsToScrape = [
-      { id: "kfc-buc-1", url: "https://wolt.com/ro/rou/bucharest/restaurant/kfc" },
-      { id: "mcdonalds-buc-1", url: "https://wolt.com/ro/rou/bucharest/restaurant/mcdonalds-bucuresti" }
+{ id: "pizzahut-constanta", url: "https://wolt.com/en/rou/constanta/restaurant/pizza-hut-constanta-67dc2390b93a5300e8efd498" },
+      { id: "kfc-buc-1", url: "https://wolt.com/en/rou/constanta/restaurant/kfc-city-park-67ee912b0231e21086424409" },
+      { id: "mcdonalds-constanta", url: "https://wolt.com/en/rou/constanta/restaurant/mcdonalds-tomis-67ed2703c86a467a0cecf401" },
+      { id: "dabo-doner-constanta", url: "https://wolt.com/en/rou/constanta/restaurant/dabo-doner-mircea-constana-00a224" }
     ];
 
     for (const rest of restaurantsToScrape) {

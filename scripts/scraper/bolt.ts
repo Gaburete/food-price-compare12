@@ -5,12 +5,14 @@ export async function scrapeBolt(context: BrowserContext, address: string) {
   const fees: Record<string, any> = {};
 
   try {
-    await page.goto("https://food.bolt.eu/ro-ro/bucuresti/", { waitUntil: 'domcontentloaded' });
+    await page.goto("https://food.bolt.eu/ro-ro/462-constanta/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
     const restaurantsToScrape = [
-      { id: "kfc-buc-1", url: "https://food.bolt.eu/ro-ro/bucuresti/p/kfc-unirii" },
-      { id: "mcdonalds-buc-1", url: "https://food.bolt.eu/ro-ro/bucuresti/p/mcdonalds-unirii" }
+{ id: "pizzahut-constanta", url: "https://food.bolt.eu/ro-ro/462-constanta/p/86990-pizza-hut-constanta/" },
+      { id: "kfc-buc-1", url: "https://food.bolt.eu/ro-ro/462-constanta/p/135512-kfc-city-park-constanta/" },
+      { id: "mcdonalds-constanta", url: "https://food.bolt.eu/ro-ro/462-constanta/p/99435-mcdonalds-vivo-mall/" },
+      { id: "dabo-doner-constanta", url: "https://food.bolt.eu/ro-ro/462-constanta/p/200293-dabo-doner-mircea-constanta/" }
     ];
 
     for (const rest of restaurantsToScrape) {

@@ -20,7 +20,12 @@ import {
   TrendingDown,
   ExternalLink,
   ChevronRight,
+  Sun,
+  Moon,
+  Wallet,
+  Bell,
 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   CITIES,
   RESTAURANTS,
@@ -83,27 +88,30 @@ function PlatformCard({ platform, data, productPrice, isCheapest, index }: Platf
   const { totalFee, deliveryFee, serviceFee, smallOrderFee } = calculateTotalFees(data, productPrice ?? 0);
   const total = data.available ? (productPrice ?? 0) + totalFee : Infinity;
 
-  const platformColors: Record<Platform, { ring: string; badge: string; btn: string; btnHover: string; glow: string }> = {
+  const platformColors: Record<Platform, { ring: string; badge: string; btn: string; btnHover: string; glow: string; bg: string }> = {
     glovo: {
-      ring: "ring-amber-400",
+      ring: "ring-amber-400/30",
       badge: "bg-amber-400 text-amber-900",
-      btn: "bg-amber-400 hover:bg-amber-500 text-amber-900",
+      btn: "bg-[#FFC244] hover:bg-[#ffb31a] text-gray-900",
       btnHover: "hover:bg-amber-500",
-      glow: "shadow-amber-200",
+      glow: "shadow-amber-200/50",
+      bg: "bg-amber-50/50",
     },
     bolt: {
-      ring: "ring-emerald-400",
+      ring: "ring-emerald-400/30",
       badge: "bg-emerald-500 text-white",
-      btn: "bg-emerald-500 hover:bg-emerald-600 text-white",
+      btn: "bg-[#34D186] hover:bg-[#2bb874] text-white",
       btnHover: "hover:bg-emerald-600",
-      glow: "shadow-emerald-200",
+      glow: "shadow-emerald-200/50",
+      bg: "bg-emerald-50/50",
     },
     wolt: {
-      ring: "ring-sky-400",
+      ring: "ring-sky-400/30",
       badge: "bg-sky-500 text-white",
-      btn: "bg-sky-500 hover:bg-sky-600 text-white",
+      btn: "bg-[#009DE0] hover:bg-[#0089c4] text-white",
       btnHover: "hover:bg-sky-600",
-      glow: "shadow-sky-200",
+      glow: "shadow-sky-200/50",
+      bg: "bg-sky-50/50",
     },
   };
 
@@ -114,14 +122,20 @@ function PlatformCard({ platform, data, productPrice, isCheapest, index }: Platf
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.12, ease: "easeOut" }}
-      className={`relative bg-white rounded-2xl border-2 transition-all duration-300 overflow-hidden
+      className={`relative rounded-3xl transition-all duration-500 overflow-hidden
         ${isCheapest
-          ? `border-emerald-400 ring-4 ${colors.ring} shadow-xl ${colors.glow}`
-          : "border-gray-100 shadow-md hover:shadow-lg hover:-translate-y-1"
+          ? `bg-white dark:bg-gray-800 border-2 border-emerald-400 ring-8 ${colors.ring} shadow-2xl ${colors.glow} scale-[1.02] z-10`
+          : `glass-card shadow-lg hover:shadow-xl hover:-translate-y-1`
         }
-        ${!data.available ? "opacity-50" : ""}
+        ${!data.available ? "opacity-30 grayscale" : ""}
       `}
     >
+      {/* Top Gradient Accent */}
+      <div className={`h-1.5 w-full bg-gradient-to-r ${
+        platform === 'glovo' ? 'from-amber-300 to-amber-500' :
+        platform === 'bolt' ? 'from-emerald-300 to-emerald-500' :
+        'from-sky-300 to-sky-500'
+      }`} />
       {/* Best Price Badge */}
       {isCheapest && data.available && (
         <div className="absolute top-0 left-0 right-0 bg-emerald-500 text-white text-xs font-bold py-1.5 text-center tracking-wider flex items-center justify-center gap-1.5">
@@ -194,16 +208,19 @@ function PlatformCard({ platform, data, productPrice, isCheapest, index }: Platf
               href={data.deepLink}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95 ${colors.btn}`}
+              className={`flex items-center justify-center gap-2.5 w-full py-4 px-4 rounded-2xl font-black text-sm transition-all duration-200 active:scale-95 shadow-lg ${colors.btn}`}
             >
-              <ShoppingBag className="w-4 h-4" />
-              Comandă pe {info.name}
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ShoppingBag className="w-4.5 h-4.5" />
+              COMANDĂ PE {info.name.toUpperCase()}
+              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </a>
           </>
         ) : (
-          <div className="text-center py-4">
-            <p className="text-sm text-gray-400">Restaurantul nu este disponibil pe această platformă</p>
+          <div className="text-center py-8">
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+               <ShoppingBag className="w-6 h-6 text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-400 px-4">Indisponibil în această locație</p>
           </div>
         )}
       </div>
@@ -294,77 +311,138 @@ function MenuSection({ menu, selectedMenuItem, onSelectItem }: MenuSectionProps)
   const filteredItems = menu.filter((i) => i.category === activeCategory);
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="h-px flex-1 bg-gray-200" />
-        <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Alege produsul</span>
-        <div className="h-px flex-1 bg-gray-200" />
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent to-gray-200" />
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Configurare Comandă</span>
+        <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent to-gray-200" />
       </div>
 
-      {/* Categorii */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-thin">
+      {/* Categorii Premium */}
+      <div className="flex gap-2.5 overflow-x-auto pb-4 mb-4 scrollbar-none no-scrollbar">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => { setActiveCategory(cat); onSelectItem(null); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap border-2 transition-all duration-200 flex-shrink-0 ${
-              activeCategory === cat
-                ? "bg-gray-900 border-gray-900 text-white"
-                : "bg-white border-gray-200 text-gray-500 hover:border-gray-400"
-            }`}
+            className={`px-5 py-2.5 rounded-full text-xs font-black whitespace-nowrap border-2 transition-all duration-300 flex-shrink-0 shadow-sm
+              ${activeCategory === cat
+                ? "bg-gray-900 border-gray-900 text-white shadow-gray-300 shadow-lg -translate-y-0.5"
+                : "bg-white/80 backdrop-blur-sm border-white text-gray-500 hover:border-gray-200 hover:bg-white"
+              }`}
           >
-            {cat}
+            {cat.toUpperCase()}
           </button>
         ))}
       </div>
 
-      {/* Produse din categoria activă */}
-      <div className="flex flex-wrap gap-2">
+      {/* Produse Premium Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {filteredItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onSelectItem(item)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-200 ${
-              selectedMenuItem?.id === item.id
-                ? "bg-[#E8400C] border-[#E8400C] text-white shadow-md"
-                : "bg-white border-gray-200 text-gray-600 hover:border-[#E8400C] hover:text-[#E8400C]"
-            }`}
+            className={`relative p-3 rounded-2xl text-left border-2 transition-all duration-300 group
+              ${selectedMenuItem?.id === item.id
+                ? "bg-white border-[#E8400C] shadow-xl shadow-orange-100 ring-4 ring-orange-50"
+                : "bg-white/60 backdrop-blur-sm border-white hover:border-orange-200 hover:bg-white hover:shadow-md"
+              }`}
           >
-            {item.name}
+            <div className="aspect-square rounded-xl overflow-hidden mb-3">
+               <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            </div>
+            <p className={`font-bold text-xs leading-tight mb-1 ${selectedMenuItem?.id === item.id ? "text-[#E8400C]" : "text-gray-800"}`}>
+              {item.name}
+            </p>
+            <p className="text-[10px] text-gray-400 font-medium line-clamp-1">{item.description}</p>
+            {selectedMenuItem?.id === item.id && (
+               <div className="absolute top-2 right-2 w-5 h-5 bg-[#E8400C] rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                  <Zap className="w-2.5 h-2.5 text-white fill-white" />
+               </div>
+            )}
           </button>
         ))}
       </div>
 
-      {/* Preview produs selectat */}
-      {selectedMenuItem && (
-        <div className="mt-3 bg-orange-50 border border-orange-100 rounded-xl p-3 flex items-center gap-3">
-          <img src={selectedMenuItem.imageUrl} alt={selectedMenuItem.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
-          <div className="flex-1">
-            <p className="font-bold text-gray-900 text-sm">{selectedMenuItem.name}</p>
-            <p className="text-xs text-gray-500">{selectedMenuItem.description}</p>
-          </div>
-          <button
-            onClick={() => onSelectItem(null)}
-            className="text-xs text-gray-400 hover:text-gray-600 font-medium flex-shrink-0"
+      {/* Selected Item Detail Glass */}
+      <AnimatePresence>
+        {selectedMenuItem && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            className="mt-6 bg-white/80 backdrop-blur-md border border-white rounded-3xl p-5 shadow-2xl shadow-orange-100/50 flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden"
           >
-            × Deselect
-          </button>
-        </div>
-      )}
+            <div className="absolute top-0 left-0 w-2 h-full bg-[#E8400C]" />
+            <img src={selectedMenuItem.imageUrl} alt={selectedMenuItem.name} className="w-24 h-24 rounded-2xl object-cover shadow-lg flex-shrink-0" />
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                <span className="bg-orange-100 text-[#E8400C] text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Produs Selectat</span>
+                <span className="text-gray-300">|</span>
+                <span className="text-xs font-bold text-gray-500">{selectedMenuItem.category}</span>
+              </div>
+              <h4 className="font-black text-gray-900 text-lg leading-tight mb-1">{selectedMenuItem.name}</h4>
+              <p className="text-sm text-gray-500 leading-relaxed">{selectedMenuItem.description}</p>
+            </div>
+            <button
+              onClick={() => onSelectItem(null)}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-colors flex-shrink-0"
+            >
+              Resetare
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 // ─── Main Home Component ──────────────────────────────────────
 export default function Home() {
+  const { theme, toggleTheme } = useTheme();
   const [restaurants, setRestaurants] = useState<Restaurant[]>(RESTAURANTS);
+  // ... rest of state
   const [query, setQuery] = useState("");
-  const [city, setCity] = useState("București");
+  const [city, setCity] = useState("Constanța");
   const [cityOpen, setCityOpen] = useState(false);
   const [results, setResults] = useState<Restaurant[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+
+  const syncFeesLive = async () => {
+    if (!selectedRestaurant) return;
+    setIsSyncing(true);
+    try {
+      const response = await fetch("/api/admin/delivery-fees/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-sync-token": "demo-token" // În producție, acesta ar fi un secret real
+        },
+        body: JSON.stringify({ address: "Bulevardul Tomis 47, Constanta" })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Re-load restaurants to get updated fees
+        const resResponse = await fetch("/api/restaurants");
+        if (resResponse.ok) {
+          const resData = await resResponse.json();
+          setRestaurants(resData.restaurants);
+          // Update selected restaurant with new fees
+          const updated = resData.restaurants.find((r: Restaurant) => r.id === selectedRestaurant.id);
+          if (updated) setSelectedRestaurant(updated);
+          setLastSyncTime(new Date().toLocaleTimeString());
+        }
+      }
+    } catch (err) {
+      console.error("Sync failed", err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -431,9 +509,9 @@ export default function Home() {
         backgroundColor: "#F5F5F0",
       }}
     >
-      {/* ── Navbar ── */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      {/* ── Navbar Premium ── */}
+      <header className="sticky top-0 z-50 glass border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <button
             onClick={() => {
               setSelectedRestaurant(null);
@@ -442,17 +520,41 @@ export default function Home() {
               setQuery("");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#E8400C] flex items-center justify-center">
-              <Zap className="w-4.5 h-4.5 text-white" fill="white" />
+            <div className="w-10 h-10 rounded-xl bg-[#E8400C] flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <Zap className="w-5 h-5 text-white" fill="white" />
             </div>
-            <span className="font-extrabold text-xl text-gray-900 tracking-tight">Food<span className="text-[#E8400C]">Radar</span></span>
+            <span className="font-black text-2xl text-gray-900 dark:text-white tracking-tighter">Food<span className="text-[#E8400C]">Radar</span></span>
           </button>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-            <a href="#cum-functioneaza" className="hover:text-[#E8400C] transition-colors">Cum funcționează</a>
-            <a href="#despre" className="hover:text-[#E8400C] transition-colors">Despre</a>
-          </nav>
+
+          <div className="flex items-center gap-4">
+            {/* Savings Wallet Mock */}
+            <div className="hidden sm:flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-2xl">
+              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <Wallet className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Economisit azi</p>
+                <p className="text-sm font-black text-gray-900 dark:text-white">42.50 RON</p>
+              </div>
+            </div>
+
+            <div className="h-8 w-px bg-gray-200 dark:bg-gray-800 mx-1 hidden sm:block" />
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#E8400C] dark:hover:text-white transition-all active:scale-90"
+            >
+              {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
+            
+            <button className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 relative">
+               <Bell className="w-5 h-5" />
+               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -726,14 +828,46 @@ export default function Home() {
                 />
               )}
 
-              {/* Comparison Title */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                  {selectedMenuItem ? `Prețuri pentru ${selectedMenuItem.name}` : "Comparație taxe livrare"}
-                </span>
-                <div className="h-px flex-1 bg-gray-200" />
+              {/* Comparison Title + Sync Button */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-3 flex-1 w-full sm:w-auto">
+                  <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent to-gray-200" />
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] whitespace-nowrap">
+                    {selectedMenuItem ? `Prețuri pentru ${selectedMenuItem.name}` : "Comparație taxe livrare"}
+                  </span>
+                  <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent to-gray-200 md:hidden" />
+                </div>
+                
+                <button
+                  onClick={syncFeesLive}
+                  disabled={isSyncing}
+                  className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl font-black text-[10px] tracking-wider uppercase transition-all duration-300 shadow-lg active:scale-95
+                    ${isSyncing 
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                      : "bg-white text-gray-900 hover:bg-[#E8400C] hover:text-white border border-gray-100"
+                    }`}
+                >
+                  {isSyncing ? (
+                    <>
+                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                        <Zap className="w-3.5 h-3.5" />
+                      </motion.div>
+                      Actualizăm taxe...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className={`w-3.5 h-3.5 ${lastSyncTime ? "text-emerald-500" : "text-orange-500"}`} fill="currentColor" />
+                      Actualizează Taxe Live
+                    </>
+                  )}
+                </button>
               </div>
+
+              {lastSyncTime && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] text-center sm:text-right font-bold text-emerald-500 mb-4 -mt-4">
+                  ✓ Taxe actualizate la {lastSyncTime} (Sursa: Scraper Realtime)
+                </motion.p>
+              )}
 
               {/* Platform Cards */}
               <div className="grid sm:grid-cols-3 gap-4">

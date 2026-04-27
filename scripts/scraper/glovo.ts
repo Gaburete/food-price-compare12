@@ -5,12 +5,14 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
   const fees: Record<string, any> = {};
 
   try {
-    await page.goto("https://glovoapp.com/ro/ro/bucuresti/", { waitUntil: 'domcontentloaded' });
+    await page.goto("https://glovoapp.com/ro/ro/constanta/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000); 
 
     const restaurantsToScrape = [
-      { id: "kfc-buc-1", url: "https://glovoapp.com/ro/ro/bucuresti/kfc-cnd/" },
-      { id: "mcdonalds-buc-1", url: "https://glovoapp.com/ro/ro/bucuresti/mcdonalds-buc/" }
+{ id: "pizzahut-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/pizza-hut-ct" },
+      { id: "kfc-buc-1", url: "https://glovoapp.com/ro/ro/constanta/stores/kfc-cta" },
+      { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" },
+      { id: "dabo-doner-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/dabo-doner-cta" }
     ];
 
     for (const rest of restaurantsToScrape) {

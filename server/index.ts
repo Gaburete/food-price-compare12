@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  const syncToken = process.env.DELIVERY_FEES_SYNC_TOKEN;
+  const syncToken = process.env.DELIVERY_FEES_SYNC_TOKEN || "demo-token";
   const syncSourceUrl = process.env.DELIVERY_FEES_SOURCE_URL;
 
   app.use(express.json());
@@ -83,6 +83,16 @@ async function startServer() {
             ...(scrapedFees.glovo?.["kfc-buc-1"] ? { glovo: scrapedFees.glovo["kfc-buc-1"] } : {}),
             ...(scrapedFees.bolt?.["kfc-buc-1"] ? { bolt: scrapedFees.bolt["kfc-buc-1"] } : {}),
             ...(scrapedFees.wolt?.["kfc-buc-1"] ? { wolt: scrapedFees.wolt["kfc-buc-1"] } : {})
+          },
+          "pizzahut-constanta": {
+            ...(scrapedFees.glovo?.["pizzahut-constanta"] ? { glovo: scrapedFees.glovo["pizzahut-constanta"] } : {}),
+            ...(scrapedFees.bolt?.["pizzahut-constanta"] ? { bolt: scrapedFees.bolt["pizzahut-constanta"] } : {}),
+            ...(scrapedFees.wolt?.["pizzahut-constanta"] ? { wolt: scrapedFees.wolt["pizzahut-constanta"] } : {})
+          },
+          "mcdonalds-constanta": {
+            ...(scrapedFees.glovo?.["mcdonalds-constanta"] ? { glovo: scrapedFees.glovo["mcdonalds-constanta"] } : {}),
+            ...(scrapedFees.bolt?.["mcdonalds-constanta"] ? { bolt: scrapedFees.bolt["mcdonalds-constanta"] } : {}),
+            ...(scrapedFees.wolt?.["mcdonalds-constanta"] ? { wolt: scrapedFees.wolt["mcdonalds-constanta"] } : {})
           }
         }
       };
