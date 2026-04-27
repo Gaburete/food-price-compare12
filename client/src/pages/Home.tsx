@@ -226,7 +226,7 @@ function MenuSection({ menu, selectedMenuItem, onSelectItem }: MenuSectionProps)
 
       <div className="flex flex-col md:flex-row gap-6 items-start">
         <div className="w-full md:w-48 sticky top-24 z-30 md:z-auto">
-          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-none no-scrollbar bg-gray-50/80 backdrop-blur-md p-1 md:bg-transparent rounded-2xl">
+          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[calc(100vh-150px)] pb-2 md:pb-0 scrollbar-none no-scrollbar bg-gray-50/80 backdrop-blur-md p-1 md:bg-transparent rounded-2xl">
             {categories.map((cat) => (
               <button key={cat} onClick={() => scrollToCategory(cat)} className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0 text-left ${activeCategory === cat ? "bg-[#E8400C] text-white shadow-lg shadow-orange-200 translate-x-1" : "text-gray-500 hover:bg-white hover:text-gray-800"}`}>{cat}</button>
             ))}
