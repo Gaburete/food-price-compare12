@@ -23,41 +23,50 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     ];
 
     for (const rest of restaurantsToScrape) {
+      const debugLogs: string[] = [];
+      const log = (msg: string) => { console.log(msg); debugLogs.push(msg); };
+
+      log(`Navigating to ${rest.url}`);
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(3000);
 
-      // Dacă apare modalul "Ești în afara zonei de livrare" sau orice altceva
+      // Dacă apare modalul "Ești în afara zonei de livrare"
       try {
-          // Folosim text curat pentru că poate fi <div>, <span>, <a> sau <button>
-          const editAddressBtn = page.locator('text="Editează-ți adresa", text="Adaugă adresa"').first();
+          const editAddressBtn = page.getByText(/Editeaz/i).first();
           if (await editAddressBtn.count() > 0) {
-              console.log("A apărut modalul de adresă. Setăm adresa...");
-              await editAddressBtn.click();
-              await page.waitForTimeout(1500);
+              log("Found 'Editeaza' button. Clicking...");
+              await editAddressBtn.click({ force: true });
+              await page.waitForTimeout(2000);
               
-              // Inputul de adresă este de obicei singurul input text din modal
-              const addressInput = page.locator('input[type="text"], input[data-test-id*="address"]').first();
+              const addressInput = page.locator('input[type="text"]').last();
               if (await addressInput.count() > 0) {
-                  await addressInput.click();
-                  await addressInput.fill(address || "Bulevardul Tomis 47, Constanța");
+                  log("Found address input. Typing Bulevardul Tomis 47...");
+                  await addressInput.click({ force: true });
+                  await addressInput.fill("Bulevardul Tomis 47, Constanța");
                   await page.waitForTimeout(2000);
                   await page.keyboard.press("Enter");
                   await page.waitForTimeout(2000);
                   
-                  // Sugestiile apar sub formă de listă
-                  const firstSuggestion = page.locator('text="Bulevardul Tomis 47", [data-test-id*="prediction"], .address-list-item').first();
+                  const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li').first();
                   if (await firstSuggestion.count() > 0) {
-                      await firstSuggestion.click();
-                      await page.waitForTimeout(3000);
+                      log("Found address prediction. Clicking...");
+                      await firstSuggestion.click({ force: true });
+                      await page.waitForTimeout(4000);
                       
-                      // După ce am setat adresa e posibil să fim trimiși pe home. Ne întoarcem la magazin.
+                      log("Re-navigating to store page...");
                       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
                       await page.waitForTimeout(3000);
+                  } else {
+                      log("No address prediction found!");
                   }
+              } else {
+                  log("No address input found!");
               }
+          } else {
+              log("No 'Editeaza' button found on the page.");
           }
-      } catch (e) {
-          console.log("Nu am găsit popup-ul de adresă sau a eșuat setarea...", e);
+      } catch (e: any) {
+          log(`Error during address setup: ${e.message}`);
       }
 
       try {
@@ -250,6 +259,13 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
           return uniqueItems;
         }, rest.url);
         
+        // DEBUG: Jurnale de execuție
+        menuItems.push({
+            id: "debug-logs",
+            name: "Debug Logs",
+            description: debugLogs.join('\n')
+        });
+
         // DEBUG: Facem și un screenshot
         try {
             const screenshot = await page.screenshot({ type: 'jpeg', quality: 30 });
