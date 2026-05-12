@@ -24,19 +24,20 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     // Setăm adresa pe pagina principală pentru a avea cookie-urile de locație setate
     log("Setăm adresa pe pagina principală (Home)...");
     try {
-        const homeTriggerInput = page.locator('input[placeholder="Care este adresa ta?"]').first();
+        const homeTriggerInput = page.locator('input[placeholder*="adres"], input[data-test-id="address-input"]').first();
         if (await homeTriggerInput.count() > 0) {
-            log("Found 'Care este adresa ta?' input. Clicking it...");
+            log("Found home input trigger. Clicking it...");
             await homeTriggerInput.click({ force: true });
             await page.waitForTimeout(2000);
             
-            const searchInput = page.locator('input[placeholder="Caută adresa"]').last();
+            // Căutăm orice input din noul modal, evitând placeholder-ul exact
+            const searchInput = page.locator('input[type="text"]:not([readonly]), input[type="search"]').last();
             if (await searchInput.count() > 0) {
-                log("Found 'Cauta adresa' input. Typing Bulevardul Tomis 47...");
+                log("Found search input in modal. Typing Bulevardul Tomis 47...");
                 await searchInput.fill("Bulevardul Tomis 47");
                 await page.waitForTimeout(3000); // Așteptăm sugestiile de la Google Places
                 
-                const firstSuggestion = page.locator('.address-suggestions__list-item, [data-test-id="address-suggestion"]').first();
+                const firstSuggestion = page.locator('.address-suggestions__list-item, [data-test-id="address-suggestion"], .address-list-item').first();
                 if (await firstSuggestion.count() > 0) {
                     log("Found address prediction. Clicking...");
                     await firstSuggestion.click({ force: true });
@@ -48,7 +49,7 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                 log("Nu am găsit inputul 'Caută adresa' în modal!");
             }
         } else {
-            log("Nu am găsit inputul 'Care este adresa ta?' pe home!");
+            log("Nu am găsit inputul de trigger pe home!");
         }
     } catch (e: any) {
         log(`Eroare setare adresă pe home: ${e.message}`);
