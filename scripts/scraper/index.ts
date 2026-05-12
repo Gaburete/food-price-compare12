@@ -21,9 +21,9 @@ export async function runScrapers(address: string) {
 
   try {
     console.log("-> Începem scraping pe Glovo...");
-    const glovoFees = await scrapeGlovo(context, address).catch(e => {
+    const glovoData = await scrapeGlovo(context, address).catch(e => {
       console.error("Eroare la Glovo:", e.message);
-      return {};
+      return { fees: {}, menus: {} };
     });
 
     console.log("-> Începem scraping pe Wolt...");
@@ -40,11 +40,19 @@ export async function runScrapers(address: string) {
 
     console.log("Scraping finalizat cu succes.");
     return {
-      glovo: glovoFees,
-      wolt: woltFees,
-      bolt: boltFees
+      fees: {
+        glovo: glovoData.fees,
+        wolt: woltFees,
+        bolt: boltFees
+      },
+      menus: {
+        glovo: glovoData.menus || {},
+        wolt: {},
+        bolt: {}
+      }
     };
   } finally {
     await browser.close();
   }
 }
+
