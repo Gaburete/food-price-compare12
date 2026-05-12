@@ -9,6 +9,26 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     await page.goto("https://glovoapp.com/ro/ro/constanta/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000); 
 
+    // Setăm adresa pentru a debloca accesul la meniuri
+    try {
+       const addressInput = page.locator('[data-test-id="address-input"], input[data-test-id="address-search-input"], input[type="text"]').first();
+       if (await addressInput.count() > 0) {
+           await addressInput.click();
+           await addressInput.fill(address || "Bulevardul Tomis 47, Constanța");
+           await page.waitForTimeout(2000);
+           await page.keyboard.press("Enter");
+           await page.waitForTimeout(2000);
+           
+           const firstSuggestion = page.locator('[data-test-id="address-prediction"]').first();
+           if (await firstSuggestion.count() > 0) {
+               await firstSuggestion.click();
+               await page.waitForTimeout(3000);
+           }
+       }
+    } catch (e) {
+       console.log("Nu am putut seta adresa, mergem mai departe...", e);
+    }
+
     const restaurantsToScrape = [
       { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" }
     ];
@@ -118,39 +138,93 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         const menuItems = await page.evaluate((url) => {
           const items: any[] = [];
           
-          // Hai să luăm toate elementele care par a fi prețuri, indiferent de format (lei, ron)
-          const htmlText = document.body.innerText;
-          const sampleText = htmlText.substring(0, 1000); // primele 1000 caractere
+          // Căutăm direct containere care arată a produse
+          // Glovo folosește frecvent div-uri complexe, încercăm selecția după structura de preț
+          const priceElements = Array.from(document.querySelectorAll('span, p, div')).filter(el => {
+              const text = el.textContent || "";
+              return (text.includes('RON') || text.includes('lei')) && text.match(/[\d,]+\s*(RON|lei)/i);
+          });
           
-          // Găsim toate clasele care conțin "product" sau "card" sau "price"
-          const classNames = new Set();
-          document.querySelectorAll('*').forEach(el => {
-              if (el.className && typeof el.className === 'string') {
-                  el.className.split(' ').forEach(cls => {
-                      if (cls.includes('product') || cls.includes('price') || cls.includes('card')) {
-                          classNames.add(cls);
-                      }
-                  });
+          // Extragem părintele care ar putea fi cardul de produs
+          const processedNodes = new Set();
+
+          priceElements.forEach(priceEl => {
+             // Urcăm 3-4 niveluri în arborele DOM
+             let card = priceEl.parentElement;
+             let depth = 0;
+             while(card && depth < 5) {
+                 if (card.querySelector('img') || card.textContent?.length! > 50) {
+                     break; // am găsit cardul probabil
+                 }
+                 card = card.parentElement;
+                 depth++;
+             }
+
+             if (card && !processedNodes.has(card)) {
+                 processedNodes.add(card);
+                 
+                 // Extragem numele (de obicei cel mai îngroșat/mare text sau h3/span cu anumite clase)
+                 const texts = Array.from(card.querySelectorAll('span, p, h3, h4'))
+                                    .map(el => el.textContent?.trim() || "")
+                                    .filter(t => t.length > 2 && !t.match(/RON|lei/i) && !t.includes('+'));
+                 
+                 if (texts.length > 0) {
+                     const name = texts[0]; // Presupunem că primul text e titlul
+                     const description = texts.slice(1).join(" ").substring(0, 200);
+                     
+                     const priceText = priceEl.textContent?.trim() || "0";
+                     const priceMatch = priceText.match(/([\d,]+)/);
+                     const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 0;
+                     
+                     const imgEl = card.querySelector('img');
+                     const imageUrl = imgEl ? (imgEl.getAttribute('src') || "") : "";
+                     
+                     // Încercăm să aflăm categoria
+                     let category = "Meniu";
+                     let parent = card.parentElement;
+                     let catDepth = 0;
+                     while(parent && catDepth < 5) {
+                         const heading = parent.querySelector('h2');
+                         if (heading && heading.textContent) {
+                             category = heading.textContent.trim();
+                             break;
+                         }
+                         parent = parent.parentElement;
+                         catDepth++;
+                     }
+
+                     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+                     if (name && price > 0 && name.length < 100) {
+                         items.push({
+                             id,
+                             name,
+                             description,
+                             category,
+                             imageUrl,
+                             prices: [{
+                                 platform: "glovo",
+                                 available: true,
+                                 price: price,
+                                 deepLink: url
+                             }]
+                         });
+                     }
+                 }
+             }
+          });
+          
+          // Eliminăm duplicatele după id
+          const uniqueItems = [];
+          const seenIds = new Set();
+          for (const item of items) {
+              if (!seenIds.has(item.id)) {
+                  seenIds.add(item.id);
+                  uniqueItems.push(item);
               }
-          });
+          }
 
-          const dataTestIds = new Set();
-          document.querySelectorAll('[data-test-id]').forEach(el => {
-             dataTestIds.add(el.getAttribute('data-test-id'));
-          });
-
-          items.push({
-             id: "debug-info",
-             name: "Debug Info",
-             description: `Text sample: ${sampleText.substring(0, 50)}...`,
-             category: "Debug",
-             imageUrl: "",
-             classes: Array.from(classNames).slice(0, 20),
-             testIds: Array.from(dataTestIds).filter(id => id?.includes('product') || id?.includes('item') || id?.includes('price')),
-             prices: []
-          });
-
-          return items;
+          return uniqueItems;
         }, rest.url);
 
         console.log(`Au fost extrase ${menuItems.length} produse pentru ${rest.id}.`);
