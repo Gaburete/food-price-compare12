@@ -26,15 +26,17 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(3000);
 
-      // Dacă apare modalul "Ești în afara zonei de livrare"
+      // Dacă apare modalul "Ești în afara zonei de livrare" sau orice altceva
       try {
-          const editAddressBtn = page.locator('button:has-text("Editează-ți adresa"), button:has-text("Adaugă adresa")').first();
+          // Folosim text curat pentru că poate fi <div>, <span>, <a> sau <button>
+          const editAddressBtn = page.locator('text="Editează-ți adresa", text="Adaugă adresa"').first();
           if (await editAddressBtn.count() > 0) {
               console.log("A apărut modalul de adresă. Setăm adresa...");
               await editAddressBtn.click();
-              await page.waitForTimeout(1000);
+              await page.waitForTimeout(1500);
               
-              const addressInput = page.locator('input[data-test-id="address-search-input"], input[placeholder*="adres"], input[type="text"]').last();
+              // Inputul de adresă este de obicei singurul input text din modal
+              const addressInput = page.locator('input[type="text"], input[data-test-id*="address"]').first();
               if (await addressInput.count() > 0) {
                   await addressInput.click();
                   await addressInput.fill(address || "Bulevardul Tomis 47, Constanța");
@@ -42,7 +44,8 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                   await page.keyboard.press("Enter");
                   await page.waitForTimeout(2000);
                   
-                  const firstSuggestion = page.locator('[data-test-id="address-prediction"], div[class*="prediction"]').first();
+                  // Sugestiile apar sub formă de listă
+                  const firstSuggestion = page.locator('text="Bulevardul Tomis 47", [data-test-id*="prediction"], .address-list-item').first();
                   if (await firstSuggestion.count() > 0) {
                       await firstSuggestion.click();
                       await page.waitForTimeout(3000);
@@ -54,7 +57,7 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               }
           }
       } catch (e) {
-          console.log("Nu am găsit popup-ul de adresă, continuăm...", e);
+          console.log("Nu am găsit popup-ul de adresă sau a eșuat setarea...", e);
       }
 
       try {
