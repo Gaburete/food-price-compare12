@@ -40,24 +40,32 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               
               const addressInput = page.locator('input[type="text"]').last();
               if (await addressInput.count() > 0) {
-                  log("Found address input. Typing Bulevardul Tomis 47...");
+                  log("Found address input. Clicking it to reveal the real search bar...");
                   await addressInput.click({ force: true });
-                  await addressInput.fill("Bulevardul Tomis 47, Constanța");
-                  await page.waitForTimeout(2000);
-                  await page.keyboard.press("Enter");
-                  await page.waitForTimeout(2000);
+                  await page.waitForTimeout(1500);
                   
-                  const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li').first();
-                  if (await firstSuggestion.count() > 0) {
-                      log("Found address prediction. Clicking...");
-                      await firstSuggestion.click({ force: true });
-                      await page.waitForTimeout(4000);
+                  const realInput = page.locator('input[type="text"]:not([readonly]), input[data-test-id="address-search-input"]').last();
+                  if (await realInput.count() > 0) {
+                      log("Typing Bulevardul Tomis 47...");
+                      await realInput.fill("Bulevardul Tomis 47, Constanța");
+                      await page.waitForTimeout(2000);
+                      await page.keyboard.press("Enter");
+                      await page.waitForTimeout(2000);
                       
-                      log("Re-navigating to store page...");
-                      await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
-                      await page.waitForTimeout(3000);
+                      const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li').first();
+                      if (await firstSuggestion.count() > 0) {
+                          log("Found address prediction. Clicking...");
+                          await firstSuggestion.click({ force: true });
+                          await page.waitForTimeout(4000);
+                          
+                          log("Re-navigating to store page...");
+                          await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
+                          await page.waitForTimeout(3000);
+                      } else {
+                          log("No address prediction found!");
+                      }
                   } else {
-                      log("No address prediction found!");
+                      log("Real input not found after clicking!");
                   }
               } else {
                   log("No address input found!");
