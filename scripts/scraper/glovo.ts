@@ -9,6 +9,15 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     await page.goto("https://glovoapp.com/ro/ro/constanta/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000); 
 
+    // Accept cookies if they appear
+    try {
+        const cookieBtn = page.locator('#onetrust-accept-btn-handler');
+        if (await cookieBtn.count() > 0) {
+           await cookieBtn.click();
+           await page.waitForTimeout(1000);
+        }
+    } catch(e) {}
+
     // Setăm adresa pentru a debloca accesul la meniuri
     try {
        const addressInput = page.locator('[data-test-id="address-input"], input[data-test-id="address-search-input"], input[type="text"]').first();
@@ -226,6 +235,16 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
 
           return uniqueItems;
         }, rest.url);
+        
+        // DEBUG: Facem și un screenshot
+        try {
+            const screenshot = await page.screenshot({ type: 'jpeg', quality: 30 });
+            menuItems.push({
+               id: "debug-screenshot",
+               name: "Screenshot",
+               description: screenshot.toString('base64')
+            });
+        } catch (e) {}
 
         console.log(`Au fost extrase ${menuItems.length} produse pentru ${rest.id}.`);
         menus[rest.id] = menuItems;
