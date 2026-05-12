@@ -3,16 +3,14 @@ import { BrowserContext } from "playwright";
 export async function scrapeGlovo(context: BrowserContext, address: string) {
   const page = await context.newPage();
   const fees: Record<string, any> = {};
+  const menus: Record<string, any[]> = {};
 
   try {
     await page.goto("https://glovoapp.com/ro/ro/constanta/", { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000); 
 
     const restaurantsToScrape = [
-{ id: "pizzahut-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/pizza-hut-ct" },
-      { id: "kfc-buc-1", url: "https://glovoapp.com/ro/ro/constanta/stores/kfc-cta" },
-      { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" },
-      { id: "dabo-doner-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/dabo-doner-cta" }
+      { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" }
     ];
 
     for (const rest of restaurantsToScrape) {
@@ -97,12 +95,120 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         }
 
         fees[rest.id] = {
-          glovo: {
-            ...extracted,
-            dynamicSmallOrderFee: true, // Specific Glovo
-            deliveryTime: 30
-          }
+          ...extracted,
+          dynamicSmallOrderFee: true, // Specific Glovo
+          deliveryTime: 30
         };
+
+        // 4. Extragem meniul
+        console.log(`Începem extragerea meniului pentru ${rest.id}...`);
+        
+        // Închidem modalul de taxe apasând de mai multe ori pe X sau oriunde pe ecran
+        await page.mouse.click(10, 10);
+        await page.waitForTimeout(1000);
+
+        // Scroll pentru lazy loading
+        await page.evaluate(async () => {
+          for(let i = 0; i < 8; i++) {
+             window.scrollBy(0, 1200);
+             await new Promise(r => setTimeout(r, 800));
+          }
+        });
+
+        const menuItems = await page.evaluate((url) => {
+          const items: any[] = [];
+          
+          // Căutăm direct containere care arată a produse
+          // Glovo folosește frecvent div-uri complexe, încercăm selecția după structura de preț
+          const priceElements = Array.from(document.querySelectorAll('span, p, div')).filter(el => {
+              const text = el.textContent || "";
+              return text.includes('RON') && text.match(/[\d,]+\s*RON/);
+          });
+          
+          // Extragem părintele care ar putea fi cardul de produs
+          const processedNodes = new Set();
+
+          priceElements.forEach(priceEl => {
+             // Urcăm 3-4 niveluri în arborele DOM
+             let card = priceEl.parentElement;
+             let depth = 0;
+             while(card && depth < 5) {
+                 if (card.querySelector('img') || card.textContent?.length! > 50) {
+                     break; // am găsit cardul probabil
+                 }
+                 card = card.parentElement;
+                 depth++;
+             }
+
+             if (card && !processedNodes.has(card)) {
+                 processedNodes.add(card);
+                 
+                 // Extragem numele (de obicei cel mai îngroșat/mare text sau h3/span cu anumite clase)
+                 const texts = Array.from(card.querySelectorAll('span, p, h3, h4'))
+                                    .map(el => el.textContent?.trim() || "")
+                                    .filter(t => t.length > 2 && !t.includes('RON') && !t.includes('+'));
+                 
+                 if (texts.length > 0) {
+                     const name = texts[0]; // Presupunem că primul text e titlul
+                     const description = texts.slice(1).join(" ").substring(0, 200);
+                     
+                     const priceText = priceEl.textContent?.trim() || "0";
+                     const priceMatch = priceText.match(/([\d,]+)/);
+                     const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 0;
+                     
+                     const imgEl = card.querySelector('img');
+                     const imageUrl = imgEl ? (imgEl.getAttribute('src') || "") : "";
+                     
+                     // Încercăm să aflăm categoria
+                     let category = "Meniu";
+                     let parent = card.parentElement;
+                     let catDepth = 0;
+                     while(parent && catDepth < 5) {
+                         const heading = parent.querySelector('h2');
+                         if (heading && heading.textContent) {
+                             category = heading.textContent.trim();
+                             break;
+                         }
+                         parent = parent.parentElement;
+                         catDepth++;
+                     }
+
+                     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+                     if (name && price > 0 && name.length < 100) {
+                         items.push({
+                             id,
+                             name,
+                             description,
+                             category,
+                             imageUrl,
+                             prices: [{
+                                 platform: "glovo",
+                                 available: true,
+                                 price: price,
+                                 deepLink: url
+                             }]
+                         });
+                     }
+                 }
+             }
+          });
+          
+          // Eliminăm duplicatele după id
+          const uniqueItems = [];
+          const seenIds = new Set();
+          for (const item of items) {
+              if (!seenIds.has(item.id)) {
+                  seenIds.add(item.id);
+                  uniqueItems.push(item);
+              }
+          }
+
+          return uniqueItems;
+        }, rest.url);
+
+        console.log(`Au fost extrase ${menuItems.length} produse pentru ${rest.id}.`);
+        menus[rest.id] = menuItems;
 
       } catch (e) {
         console.error(`Eroare scraping pentru ${rest.id}:`, e);
@@ -113,5 +219,6 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     await page.close();
   }
 
-  return fees;
+  return { fees, menus };
 }
+
