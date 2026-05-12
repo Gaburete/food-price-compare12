@@ -18,59 +18,45 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         }
     } catch(e) {}
 
+    const debugLogs: string[] = [];
+    const log = (msg: string) => { console.log(msg); debugLogs.push(msg); };
+
+    // Setăm adresa pe pagina principală pentru a avea cookie-urile de locație setate
+    log("Setăm adresa pe pagina principală (Home)...");
+    try {
+        const homeFakeInput = page.locator('input[readonly], input[placeholder*="adres"]').first();
+        if (await homeFakeInput.count() > 0) {
+            log("Found home input. Clicking it...");
+            await homeFakeInput.click({ force: true });
+            await page.waitForTimeout(1500);
+            
+            log("Typing Bulevardul Tomis 47...");
+            await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
+            await page.waitForTimeout(3000); // Așteptăm sugestiile fără să apăsăm Enter!
+            
+            const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li, [class*="Suggestion"]').first();
+            if (await firstSuggestion.count() > 0) {
+                log("Found prediction on home page. Clicking...");
+                await firstSuggestion.click({ force: true });
+                await page.waitForTimeout(4000);
+            } else {
+                log("No prediction found on home page!");
+            }
+        } else {
+            log("Nu am găsit inputul de adresă pe home!");
+        }
+    } catch (e: any) {
+        log(`Eroare setare adresă pe home: ${e.message}`);
+    }
+
     const restaurantsToScrape = [
       { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" }
     ];
 
     for (const rest of restaurantsToScrape) {
-      const debugLogs: string[] = [];
-      const log = (msg: string) => { console.log(msg); debugLogs.push(msg); };
-
       log(`Navigating to ${rest.url}`);
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(3000);
-
-      // Dacă apare modalul "Ești în afara zonei de livrare"
-      try {
-          const editAddressBtn = page.getByText(/Editeaz/i).first();
-          if (await editAddressBtn.count() > 0) {
-              log("Found 'Editeaza' button. Clicking...");
-              await editAddressBtn.click({ force: true });
-              await page.waitForTimeout(2000);
-              
-              // Cautăm input-ul fals și dăm click pe el dacă există
-              const fakeInput = page.locator('input[readonly]').first();
-              if (await fakeInput.count() > 0) {
-                  log("Found readonly fake input. Clicking to open real search...");
-                  await fakeInput.click({ force: true });
-                  await page.waitForTimeout(1500);
-              }
-              
-              // Deoarece input-ul real primește automat focus, putem tasta direct din tastatură!
-              log("Typing address via keyboard directly...");
-              await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
-              await page.waitForTimeout(2000);
-              await page.keyboard.press("Enter");
-              await page.waitForTimeout(2000);
-              
-              const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li, [class*="Suggestion"]').first();
-              if (await firstSuggestion.count() > 0) {
-                  log("Found address prediction. Clicking...");
-                  await firstSuggestion.click({ force: true });
-                  await page.waitForTimeout(4000);
-                  
-                  log("Re-navigating to store page...");
-                  await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
-                  await page.waitForTimeout(3000);
-              } else {
-                  log("No address prediction found after typing!");
-              }
-          } else {
-              log("No 'Editeaza' button found on the page.");
-          }
-      } catch (e: any) {
-          log(`Error during address setup: ${e.message}`);
-      }
 
       try {
         // 1. Dăm click pe primul produs disponibil
