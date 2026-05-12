@@ -24,26 +24,32 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     // Setăm adresa pe pagina principală pentru a avea cookie-urile de locație setate
     log("Setăm adresa pe pagina principală (Home)...");
     try {
-        const homeFakeInput = page.locator('input[readonly], input[placeholder*="adres"]').first();
-        if (await homeFakeInput.count() > 0) {
-            log("Found home input. Clicking it...");
-            await homeFakeInput.click({ force: true });
-            await page.waitForTimeout(1500);
+        // Apăsăm pe selectorul de locație din stânga sus ("Constanța")
+        const cityBtn = page.locator('span:has-text("Constanța"), div:has-text("Constanța")').first();
+        if (await cityBtn.count() > 0) {
+            log("Found city button in header. Clicking it...");
+            await cityBtn.click({ force: true });
+            await page.waitForTimeout(2000);
+            
+            // Dăm click pe inputul care apare în modal
+            const searchInput = page.locator('input[type="text"], input[type="search"]').last();
+            if (await searchInput.count() > 0) {
+                log("Clicking search input in modal...");
+                await searchInput.click({ force: true });
+                await page.waitForTimeout(1000);
+            }
             
             log("Typing Bulevardul Tomis 47...");
             await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
-            await page.waitForTimeout(3000); // Așteptăm sugestiile fără să apăsăm Enter!
+            await page.waitForTimeout(3000); 
             
-            const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li, [class*="Suggestion"]').first();
-            if (await firstSuggestion.count() > 0) {
-                log("Found prediction on home page. Clicking...");
-                await firstSuggestion.click({ force: true });
-                await page.waitForTimeout(4000);
-            } else {
-                log("No prediction found on home page!");
-            }
+            log("Using ArrowDown + Enter to select the first prediction!");
+            await page.keyboard.press("ArrowDown");
+            await page.waitForTimeout(500);
+            await page.keyboard.press("Enter");
+            await page.waitForTimeout(4000);
         } else {
-            log("Nu am găsit inputul de adresă pe home!");
+            log("Nu am găsit butonul cu orașul în header!");
         }
     } catch (e: any) {
         log(`Eroare setare adresă pe home: ${e.message}`);
