@@ -24,32 +24,31 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
     // Setăm adresa pe pagina principală pentru a avea cookie-urile de locație setate
     log("Setăm adresa pe pagina principală (Home)...");
     try {
-        // Apăsăm pe selectorul de locație din stânga sus ("Constanța")
-        const cityBtn = page.locator('span:has-text("Constanța"), div:has-text("Constanța")').first();
-        if (await cityBtn.count() > 0) {
-            log("Found city button in header. Clicking it...");
-            await cityBtn.click({ force: true });
+        const homeTriggerInput = page.locator('input[placeholder="Care este adresa ta?"]').first();
+        if (await homeTriggerInput.count() > 0) {
+            log("Found 'Care este adresa ta?' input. Clicking it...");
+            await homeTriggerInput.click({ force: true });
             await page.waitForTimeout(2000);
             
-            // Dăm click pe inputul care apare în modal
-            const searchInput = page.locator('input[type="text"], input[type="search"]').last();
+            const searchInput = page.locator('input[placeholder="Caută adresa"]').last();
             if (await searchInput.count() > 0) {
-                log("Clicking search input in modal...");
-                await searchInput.click({ force: true });
-                await page.waitForTimeout(1000);
+                log("Found 'Cauta adresa' input. Typing Bulevardul Tomis 47...");
+                await searchInput.fill("Bulevardul Tomis 47");
+                await page.waitForTimeout(3000); // Așteptăm sugestiile de la Google Places
+                
+                const firstSuggestion = page.locator('.address-suggestions__list-item, [data-test-id="address-suggestion"]').first();
+                if (await firstSuggestion.count() > 0) {
+                    log("Found address prediction. Clicking...");
+                    await firstSuggestion.click({ force: true });
+                    await page.waitForTimeout(4000);
+                } else {
+                    log("No prediction found on home page!");
+                }
+            } else {
+                log("Nu am găsit inputul 'Caută adresa' în modal!");
             }
-            
-            log("Typing Bulevardul Tomis 47...");
-            await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
-            await page.waitForTimeout(3000); 
-            
-            log("Using ArrowDown + Enter to select the first prediction!");
-            await page.keyboard.press("ArrowDown");
-            await page.waitForTimeout(500);
-            await page.keyboard.press("Enter");
-            await page.waitForTimeout(4000);
         } else {
-            log("Nu am găsit butonul cu orașul în header!");
+            log("Nu am găsit inputul 'Care este adresa ta?' pe home!");
         }
     } catch (e: any) {
         log(`Eroare setare adresă pe home: ${e.message}`);
