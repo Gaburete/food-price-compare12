@@ -73,38 +73,63 @@ async function startServer() {
     try {
       console.log("Pornim scraper-ul pentru Bulevardul Tomis, 47...");
       const addressToScrape = req.body.address || "Bulevardul Tomis 47, Constanta";
-      const scrapedFees = await runScrapers(addressToScrape);
+      const scrapedData = await runScrapers(addressToScrape);
 
+      // Save Fees
       const dataset = {
         updatedAt: new Date().toISOString(),
         source: "playwright-scraper",
         fees: {
           "kfc-buc-1": {
-            ...(scrapedFees.glovo?.["kfc-buc-1"] ? { glovo: scrapedFees.glovo["kfc-buc-1"] } : {}),
-            ...(scrapedFees.bolt?.["kfc-buc-1"] ? { bolt: scrapedFees.bolt["kfc-buc-1"] } : {}),
-            ...(scrapedFees.wolt?.["kfc-buc-1"] ? { wolt: scrapedFees.wolt["kfc-buc-1"] } : {})
+            ...(scrapedData.fees.glovo?.["kfc-buc-1"] ? { glovo: scrapedData.fees.glovo["kfc-buc-1"] } : {}),
+            ...(scrapedData.fees.bolt?.["kfc-buc-1"] ? { bolt: scrapedData.fees.bolt["kfc-buc-1"] } : {}),
+            ...(scrapedData.fees.wolt?.["kfc-buc-1"] ? { wolt: scrapedData.fees.wolt["kfc-buc-1"] } : {})
           },
           "pizzahut-constanta": {
-            ...(scrapedFees.glovo?.["pizzahut-constanta"] ? { glovo: scrapedFees.glovo["pizzahut-constanta"] } : {}),
-            ...(scrapedFees.bolt?.["pizzahut-constanta"] ? { bolt: scrapedFees.bolt["pizzahut-constanta"] } : {}),
-            ...(scrapedFees.wolt?.["pizzahut-constanta"] ? { wolt: scrapedFees.wolt["pizzahut-constanta"] } : {})
+            ...(scrapedData.fees.glovo?.["pizzahut-constanta"] ? { glovo: scrapedData.fees.glovo["pizzahut-constanta"] } : {}),
+            ...(scrapedData.fees.bolt?.["pizzahut-constanta"] ? { bolt: scrapedData.fees.bolt["pizzahut-constanta"] } : {}),
+            ...(scrapedData.fees.wolt?.["pizzahut-constanta"] ? { wolt: scrapedData.fees.wolt["pizzahut-constanta"] } : {})
           },
           "mcdonalds-constanta": {
-            ...(scrapedFees.glovo?.["mcdonalds-constanta"] ? { glovo: scrapedFees.glovo["mcdonalds-constanta"] } : {}),
-            ...(scrapedFees.bolt?.["mcdonalds-constanta"] ? { bolt: scrapedFees.bolt["mcdonalds-constanta"] } : {}),
-            ...(scrapedFees.wolt?.["mcdonalds-constanta"] ? { wolt: scrapedFees.wolt["mcdonalds-constanta"] } : {})
+            ...(scrapedData.fees.glovo?.["mcdonalds-constanta"] ? { glovo: scrapedData.fees.glovo["mcdonalds-constanta"] } : {}),
+            ...(scrapedData.fees.bolt?.["mcdonalds-constanta"] ? { bolt: scrapedData.fees.bolt["mcdonalds-constanta"] } : {}),
+            ...(scrapedData.fees.wolt?.["mcdonalds-constanta"] ? { wolt: scrapedData.fees.wolt["mcdonalds-constanta"] } : {})
           }
         }
       };
 
       await writeDeliveryFeeDataset(dataset as any);
 
+      // Save Menus (merging what we already have with the new data)
+      const existingMenusDataset = await readRestaurantMenusDataset();
+      const updatedMenus = { ...existingMenusDataset.menus };
+
+      // Momentan salvăm doar ce găsim pe glovo pentru McDonalds
+      if (scrapedData.menus.glovo?.["mcdonalds-constanta"] && scrapedData.menus.glovo["mcdonalds-constanta"].length > 0) {
+        updatedMenus["mcdonalds-constanta"] = scrapedData.menus.glovo["mcdonalds-constanta"];
+      }
+
+      const menusDatasetToSave = {
+        updatedAt: new Date().toISOString(),
+        source: "playwright-scraper-glovo",
+        menus: updatedMenus
+      };
+
+      // Importăm fs aici ca un mic hack pentru a scrie manual, deși ideal foloseam writeRestaurantMenusDataset
+      const fs = await import("node:fs/promises");
+      const path = await import("node:path");
+      await fs.writeFile(
+        path.resolve(process.cwd(), "data", "restaurant-menus.json"),
+        JSON.stringify(menusDatasetToSave, null, 2),
+        "utf8"
+      );
+
       res.json({
         ok: true,
         updatedAt: dataset.updatedAt,
         source: dataset.source ?? null,
         restaurantCount: RESTAURANTS.length,
-        scrapedFees
+        scrapedData
       });
     } catch (error) {
       console.error("Delivery fee sync failed", error);
