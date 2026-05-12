@@ -1,60 +1,29 @@
 import { BrowserContext } from "playwright";
 
 export async function scrapeGlovo(context: BrowserContext, address: string) {
+  // Injectăm cookie-ul de locație direct în contextul primit
+  try {
+      await context.addCookies([{
+          name: 'glovo_delivery_location',
+          value: encodeURIComponent(JSON.stringify({
+              lat: 44.179249,
+              lon: 28.64994,
+              address: "Bulevardul Tomis 47, Constanța",
+              cityCode: "CTA"
+          })),
+          domain: '.glovoapp.com',
+          path: '/'
+      }]);
+  } catch(e) {}
+
   const page = await context.newPage();
   const fees: Record<string, any> = {};
   const menus: Record<string, any[]> = {};
+  
+  const debugLogs: string[] = [];
+  const log = (msg: string) => { console.log(msg); debugLogs.push(msg); };
 
   try {
-    await page.goto("https://glovoapp.com/ro/ro/constanta/", { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(3000); 
-
-    // Accept cookies if they appear
-    try {
-        const cookieBtn = page.locator('button:has-text("Acceptați toate"), #onetrust-accept-btn-handler').first();
-        if (await cookieBtn.count() > 0) {
-           await cookieBtn.click();
-           await page.waitForTimeout(1000);
-        }
-    } catch(e) {}
-
-    const debugLogs: string[] = [];
-    const log = (msg: string) => { console.log(msg); debugLogs.push(msg); };
-
-    // Setăm adresa pe pagina principală pentru a avea cookie-urile de locație setate
-    log("Setăm adresa pe pagina principală (Home)...");
-    try {
-        const homeTriggerInput = page.locator('input[placeholder*="adres"], input[data-test-id="address-input"]').first();
-        if (await homeTriggerInput.count() > 0) {
-            log("Found home input trigger. Clicking it...");
-            await homeTriggerInput.click({ force: true });
-            await page.waitForTimeout(2000);
-            
-            // Căutăm orice input din noul modal, evitând placeholder-ul exact
-            const searchInput = page.locator('input[type="text"]:not([readonly]), input[type="search"]').last();
-            if (await searchInput.count() > 0) {
-                log("Found search input in modal. Typing Bulevardul Tomis 47...");
-                await searchInput.fill("Bulevardul Tomis 47");
-                await page.waitForTimeout(3000); // Așteptăm sugestiile de la Google Places
-                
-                const firstSuggestion = page.locator('.address-suggestions__list-item, [data-test-id="address-suggestion"], .address-list-item').first();
-                if (await firstSuggestion.count() > 0) {
-                    log("Found address prediction. Clicking...");
-                    await firstSuggestion.click({ force: true });
-                    await page.waitForTimeout(4000);
-                } else {
-                    log("No prediction found on home page!");
-                }
-            } else {
-                log("Nu am găsit inputul 'Caută adresa' în modal!");
-            }
-        } else {
-            log("Nu am găsit inputul de trigger pe home!");
-        }
-    } catch (e: any) {
-        log(`Eroare setare adresă pe home: ${e.message}`);
-    }
-
     const restaurantsToScrape = [
       { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" }
     ];
@@ -63,6 +32,15 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
       log(`Navigating to ${rest.url}`);
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(3000);
+
+      // Accept cookies if they appear
+      try {
+          const cookieBtn = page.locator('button:has-text("Acceptați toate"), #onetrust-accept-btn-handler').first();
+          if (await cookieBtn.count() > 0) {
+             await cookieBtn.click();
+             await page.waitForTimeout(1000);
+          }
+      } catch(e) {}
 
       try {
         // 1. Dăm click pe primul produs disponibil
