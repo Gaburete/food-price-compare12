@@ -11,7 +11,7 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
 
     // Accept cookies if they appear
     try {
-        const cookieBtn = page.locator('#onetrust-accept-btn-handler');
+        const cookieBtn = page.locator('button:has-text("Acceptați toate"), #onetrust-accept-btn-handler').first();
         if (await cookieBtn.count() > 0) {
            await cookieBtn.click();
            await page.waitForTimeout(1000);
