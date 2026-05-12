@@ -38,37 +38,32 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               await editAddressBtn.click({ force: true });
               await page.waitForTimeout(2000);
               
-              const addressInput = page.locator('input[type="text"]').last();
-              if (await addressInput.count() > 0) {
-                  log("Found address input. Clicking it to reveal the real search bar...");
-                  await addressInput.click({ force: true });
+              // Cautăm input-ul fals și dăm click pe el dacă există
+              const fakeInput = page.locator('input[readonly]').first();
+              if (await fakeInput.count() > 0) {
+                  log("Found readonly fake input. Clicking to open real search...");
+                  await fakeInput.click({ force: true });
                   await page.waitForTimeout(1500);
+              }
+              
+              // Deoarece input-ul real primește automat focus, putem tasta direct din tastatură!
+              log("Typing address via keyboard directly...");
+              await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
+              await page.waitForTimeout(2000);
+              await page.keyboard.press("Enter");
+              await page.waitForTimeout(2000);
+              
+              const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li, [class*="Suggestion"]').first();
+              if (await firstSuggestion.count() > 0) {
+                  log("Found address prediction. Clicking...");
+                  await firstSuggestion.click({ force: true });
+                  await page.waitForTimeout(4000);
                   
-                  const realInput = page.locator('input[type="text"]:not([readonly]), input[data-test-id="address-search-input"]').last();
-                  if (await realInput.count() > 0) {
-                      log("Typing Bulevardul Tomis 47...");
-                      await realInput.fill("Bulevardul Tomis 47, Constanța");
-                      await page.waitForTimeout(2000);
-                      await page.keyboard.press("Enter");
-                      await page.waitForTimeout(2000);
-                      
-                      const firstSuggestion = page.locator('.address-list-item, [data-test-id*="prediction"], li').first();
-                      if (await firstSuggestion.count() > 0) {
-                          log("Found address prediction. Clicking...");
-                          await firstSuggestion.click({ force: true });
-                          await page.waitForTimeout(4000);
-                          
-                          log("Re-navigating to store page...");
-                          await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
-                          await page.waitForTimeout(3000);
-                      } else {
-                          log("No address prediction found!");
-                      }
-                  } else {
-                      log("Real input not found after clicking!");
-                  }
+                  log("Re-navigating to store page...");
+                  await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
+                  await page.waitForTimeout(3000);
               } else {
-                  log("No address input found!");
+                  log("No address prediction found after typing!");
               }
           } else {
               log("No 'Editeaza' button found on the page.");
