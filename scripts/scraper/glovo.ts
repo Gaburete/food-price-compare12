@@ -18,33 +18,44 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         }
     } catch(e) {}
 
-    // Setăm adresa pentru a debloca accesul la meniuri
-    try {
-       const addressInput = page.locator('[data-test-id="address-input"], input[data-test-id="address-search-input"], input[type="text"]').first();
-       if (await addressInput.count() > 0) {
-           await addressInput.click();
-           await addressInput.fill(address || "Bulevardul Tomis 47, Constanța");
-           await page.waitForTimeout(2000);
-           await page.keyboard.press("Enter");
-           await page.waitForTimeout(2000);
-           
-           const firstSuggestion = page.locator('[data-test-id="address-prediction"]').first();
-           if (await firstSuggestion.count() > 0) {
-               await firstSuggestion.click();
-               await page.waitForTimeout(3000);
-           }
-       }
-    } catch (e) {
-       console.log("Nu am putut seta adresa, mergem mai departe...", e);
-    }
-
     const restaurantsToScrape = [
       { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" }
     ];
 
     for (const rest of restaurantsToScrape) {
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
+
+      // Dacă apare modalul "Ești în afara zonei de livrare"
+      try {
+          const editAddressBtn = page.locator('button:has-text("Editează-ți adresa"), button:has-text("Adaugă adresa")').first();
+          if (await editAddressBtn.count() > 0) {
+              console.log("A apărut modalul de adresă. Setăm adresa...");
+              await editAddressBtn.click();
+              await page.waitForTimeout(1000);
+              
+              const addressInput = page.locator('input[data-test-id="address-search-input"], input[placeholder*="adres"], input[type="text"]').last();
+              if (await addressInput.count() > 0) {
+                  await addressInput.click();
+                  await addressInput.fill(address || "Bulevardul Tomis 47, Constanța");
+                  await page.waitForTimeout(2000);
+                  await page.keyboard.press("Enter");
+                  await page.waitForTimeout(2000);
+                  
+                  const firstSuggestion = page.locator('[data-test-id="address-prediction"], div[class*="prediction"]').first();
+                  if (await firstSuggestion.count() > 0) {
+                      await firstSuggestion.click();
+                      await page.waitForTimeout(3000);
+                      
+                      // După ce am setat adresa e posibil să fim trimiși pe home. Ne întoarcem la magazin.
+                      await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
+                      await page.waitForTimeout(3000);
+                  }
+              }
+          }
+      } catch (e) {
+          console.log("Nu am găsit popup-ul de adresă, continuăm...", e);
+      }
 
       try {
         // 1. Dăm click pe primul produs disponibil
