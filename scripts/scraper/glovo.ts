@@ -183,6 +183,7 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         });
 
         const menuItems = await page.evaluate((url) => {
+          const items: any[] = [];
           let productElements = Array.from(document.querySelectorAll('.product-row, .store-product, [data-test-id="product-row"], .product-card, [data-test-id="product-layout"]'));
           
           const evaluateDebug: string[] = [];
