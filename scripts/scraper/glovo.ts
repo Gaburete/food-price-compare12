@@ -59,19 +59,15 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                   // Folosim tastarea simulată
                   await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 150 });
                   
-                  log("Waiting 5 seconds for Google Places to load suggestions...");
-                  await page.waitForTimeout(5000); 
+                  log("Waiting up to 10 seconds for Google Places suggestions to appear in DOM...");
+                  const suggestion = page.locator('.address-prediction, ul[role="listbox"] li, [data-test-id="address-suggestion"]').first();
                   
-                  try {
-                      const snap = await page.screenshot({ encoding: 'base64' });
-                      log("B64_BEFORE_ARROW:" + snap);
-                  } catch(e) {}
+                  // Dacă asta dă timeout, înseamnă că Google Places e blocat sau nu returnează nimic!
+                  await suggestion.waitFor({ state: 'visible', timeout: 10000 });
                   
-                  log("Pressing ArrowDown and Enter to select prediction!");
-                  await page.keyboard.press("ArrowDown");
-                  await page.waitForTimeout(800);
-                  await page.keyboard.press("Enter");
-                  await page.waitForTimeout(4000);
+                  log("Found prediction! Clicking it...");
+                  await suggestion.click();
+                  await page.waitForTimeout(3000);
                   
                   // **PASUL LIPSĂ: Modalul de confirmare a tipului de locație! ("Ce fel de loc este acesta?")**
                   log("Looking for Location Type confirmation modal...");
