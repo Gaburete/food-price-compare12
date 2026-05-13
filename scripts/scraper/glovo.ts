@@ -187,6 +187,9 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
           
           const productElements = document.querySelectorAll('.product-row, .store-product, [data-test-id="product-row"], .product-card, [data-test-id="product-layout"]');
           
+          const evaluateDebug: string[] = [];
+          evaluateDebug.push(`Found ${productElements.length} product elements.`);
+          
           productElements.forEach(card => {
              // Numele produsului
              const nameEl = card.querySelector('[data-test-id="product-row-name"] span, [data-test-id="product-name"], [data-test-id="product-row-name"], h2, .product-row__name, .product-card-title, h3, h4, span[class*="name"]');
@@ -197,6 +200,8 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
              const priceText = priceEl ? priceEl.textContent?.trim() || "" : "";
              const priceMatch = priceText.match(/([\d,]+)/);
              const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 0;
+             
+             evaluateDebug.push(`Card innerText length: ${card.textContent?.length}. Name extracted: '${name}', Price extracted: ${price} (from '${priceText}')`);
              
              // Descrierea
              const descEl = card.querySelector('[data-test-id="product-description"], .product-row__info, span[class*="description"]');
@@ -236,6 +241,8 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                          deepLink: url
                      }]
                  });
+             } else {
+                 evaluateDebug.push(`SKIPPED: Name='${name}', Price=${price}, NameLen=${name.length}`);
              }
           });
           
@@ -249,11 +256,15 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               }
           }
 
-          return uniqueItems;
+          return { uniqueItems, evaluateDebug };
         }, rest.url);
         
         // DEBUG: Jurnale de execuție
-        menuItems.push({
+        menuItems.evaluateDebug.forEach((d: string) => debugLogs.push("EVAL: " + d));
+        const finalItems = menuItems.uniqueItems;
+        
+        // DEBUG: Jurnale de execuție
+        finalItems.push({
             id: "debug-logs",
             name: "Debug Logs",
             description: debugLogs.join('\n')
@@ -262,15 +273,15 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         // DEBUG: Facem și un screenshot
         try {
             const screenshot = await page.screenshot({ type: 'jpeg', quality: 30 });
-            menuItems.push({
+            finalItems.push({
                id: "debug-screenshot",
                name: "Screenshot",
                description: screenshot.toString('base64')
             });
         } catch (e) {}
 
-        console.log(`Au fost extrase ${menuItems.length} produse pentru ${rest.id}.`);
-        menus[rest.id] = menuItems;
+        console.log(`Au fost extrase ${finalItems.length} produse pentru ${rest.id}.`);
+        menus[rest.id] = finalItems;
 
       } catch (e) {
         console.error(`Eroare scraping pentru ${rest.id}:`, e);
