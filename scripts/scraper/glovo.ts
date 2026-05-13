@@ -48,15 +48,21 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               // Pe McDonald's, când apeși edit, apare direct modalul de căutare "Unde să livrăm?"
               const realInput = page.locator('input[placeholder*="Caut"], input[placeholder*="Search"], input[data-testid="address-input"], input[type="text"]:not([readonly])').last();
               if (await realInput.count() > 0) {
-                  log("Found real search input. Typing address...");
-                  await realInput.fill("Bulevardul Tomis 47");
-                  await page.waitForTimeout(3000); // Așteptăm Google Places
+                  log("Found real search input. Typing address via keyboard...");
+                  await realInput.click({ force: true });
+                  await page.waitForTimeout(500);
+                  
+                  // .fill() nu declanșează mereu dropdown-ul Google Places, folosim tastarea simulată
+                  await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 150 });
+                  
+                  log("Waiting 5 seconds for Google Places to load suggestions...");
+                  await page.waitForTimeout(5000); 
                   
                   log("Pressing ArrowDown and Enter to select prediction!");
                   await page.keyboard.press("ArrowDown");
-                  await page.waitForTimeout(500);
+                  await page.waitForTimeout(800);
                   await page.keyboard.press("Enter");
-                  await page.waitForTimeout(3000);
+                  await page.waitForTimeout(4000);
                   
                   // **PASUL LIPSĂ: Modalul de confirmare a tipului de locație! ("Ce fel de loc este acesta?")**
                   log("Looking for Location Type confirmation modal...");
