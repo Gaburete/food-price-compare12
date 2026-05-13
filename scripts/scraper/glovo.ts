@@ -193,7 +193,7 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
              let name = nameEl ? nameEl.textContent?.trim() || "" : "";
              
              // Prețul produsului
-             const priceEl = card.querySelector('[data-test-id="product-price"], .product-row__price, .product-price, .price, span[class*="price"]');
+             const priceEl = card.querySelector('[data-test-id="product-row-price"], [data-test-id="product-price"], .product-row__price, .product-price, .price, span[class*="price"]');
              const priceText = priceEl ? priceEl.textContent?.trim() || "" : "";
              const priceMatch = priceText.match(/([\d,]+)/);
              const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 0;
