@@ -45,46 +45,20 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               await editBtn.click(); // Fără force:true pentru a ne asigura că e vizibil și interactiv
               await page.waitForTimeout(2000);
               
-              // Așteptăm explicit modalul de căutare adresă (evităm inputul general de pe fundal)
-              const realInput = page.getByPlaceholder(/caut.*adres/i).or(page.getByPlaceholder(/search.*address/i)).or(page.locator('[data-test-id="address-search-input"], [data-test-id="address-input"]')).first();
+              log("Waiting for 'Use current location' button...");
+              const currentLocationBtn = page.locator('button:has-text("Utilizează locația curentă"), button:has-text("Use current location")').first();
               
-              log("Waiting for real search input to be visible...");
-              await realInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => log("Input not visible after 5s!"));
+              await currentLocationBtn.waitFor({ state: 'visible', timeout: 5000 }).catch(() => log("Current location button not visible after 5s!"));
               
-              if (await realInput.count() > 0 && await realInput.isVisible()) {
-                  log("Found real search input. Typing address via keyboard...");
-                  await realInput.click();
-                  await page.waitForTimeout(500);
+              if (await currentLocationBtn.count() > 0 && await currentLocationBtn.isVisible()) {
+                  log("Found 'Use current location' button! Clicking it...");
+                  await currentLocationBtn.click();
                   
-                  // Folosim tastarea simulată
-                  await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 150 });
-                  
-                  log("Waiting up to 10 seconds for Google Places suggestions to appear in DOM...");
-                  const suggestion = page.locator('.address-prediction, ul[role="listbox"] li, [data-test-id="address-suggestion"]').first();
-                  
-                  // Dacă asta dă timeout, înseamnă că Google Places e blocat sau nu returnează nimic!
-                  await suggestion.waitFor({ state: 'visible', timeout: 10000 });
-                  
-                  log("Found prediction! Clicking it...");
-                  await suggestion.click();
-                  await page.waitForTimeout(3000);
-                  
-                  // **PASUL LIPSĂ: Modalul de confirmare a tipului de locație! ("Ce fel de loc este acesta?")**
-                  log("Looking for Location Type confirmation modal...");
-                  const typeBtn = page.locator('button:has-text("Altele"), button:has-text("Other"), button:has-text("Acasă"), button:has-text("Home")').first();
-                  if (await typeBtn.count() > 0) {
-                      await typeBtn.click();
-                      await page.waitForTimeout(1000);
-                  }
-                  
-                  const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Confirmă")').first();
-                  if (await confirmBtn.count() > 0) {
-                      log("Confirming address!");
-                      await confirmBtn.click();
-                      await page.waitForTimeout(4000);
-                  }
+                  // După click, modalul se închide și adresa este setată automat folosind HTML5 Geolocation
+                  log("Waiting 5 seconds for location to be resolved by HTML5 Geolocation...");
+                  await page.waitForTimeout(5000);
               } else {
-                  log("No search input found or it wasn't visible after clicking Edit.");
+                  log("No 'Use current location' button found.");
               }
           } else {
               log("No 'Edit address' button found. Maybe we are already in zone!");
