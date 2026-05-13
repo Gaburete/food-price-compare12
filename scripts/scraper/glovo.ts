@@ -45,29 +45,40 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
               await editBtn.click({ force: true });
               await page.waitForTimeout(2000);
               
-              // Pe McDonald's, când apeși edit, apare inputul fals/readonly
-              const fakeInput = page.locator('input[readonly], input[placeholder*="adres"], input[placeholder*="address"]').first();
-              if (await fakeInput.count() > 0) {
-                  log("Found fake readonly input. Clicking to open real search...");
-                  await fakeInput.click({ force: true });
-                  await page.waitForTimeout(2000);
-                  
-                  // Acum focusul e pe inputul real, tastăm orbește sau îl găsim
-                  log("Typing address...");
-                  await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
+              // Pe McDonald's, când apeși edit, apare direct modalul de căutare "Unde să livrăm?"
+              const realInput = page.locator('input[placeholder*="Caut"], input[placeholder*="Search"], input[data-testid="address-input"], input[type="text"]:not([readonly])').last();
+              if (await realInput.count() > 0) {
+                  log("Found real search input. Typing address...");
+                  await realInput.fill("Bulevardul Tomis 47");
                   await page.waitForTimeout(3000); // Așteptăm Google Places
                   
-                  log("Pressing ArrowDown and Enter to select prediction!");
-                  await page.keyboard.press("ArrowDown");
-                  await page.waitForTimeout(500);
-                  await page.keyboard.press("Enter");
-                  await page.waitForTimeout(4000);
-                  
-                  log("Re-loading store page just in case...");
-                  await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
-                  await page.waitForTimeout(3000);
+                  // Selectăm predicția (Aici subagentul a găsit .address-prediction)
+                  const firstSuggestion = page.locator('.address-prediction, div:has-text("Bulevardul Tomis, 47"), [data-test-id="address-suggestion"]').first();
+                  if (await firstSuggestion.count() > 0) {
+                      log("Found address prediction. Clicking...");
+                      await firstSuggestion.click({ force: true });
+                      await page.waitForTimeout(3000);
+                      
+                      // **PASUL LIPSĂ: Modalul de confirmare a tipului de locație! ("Ce fel de loc este acesta?")**
+                      log("Looking for Location Type confirmation modal...");
+                      const typeBtn = page.locator('button:has-text("Altele"), button:has-text("Other"), button:has-text("Acasă"), button:has-text("Home")').first();
+                      if (await typeBtn.count() > 0) {
+                          await typeBtn.click({ force: true });
+                          await page.waitForTimeout(1000);
+                      }
+                      
+                      const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Confirmă")').first();
+                      if (await confirmBtn.count() > 0) {
+                          log("Confirming address!");
+                          await confirmBtn.click({ force: true });
+                          await page.waitForTimeout(4000);
+                      }
+                      
+                  } else {
+                      log("No prediction found after typing.");
+                  }
               } else {
-                  log("No fake input found after clicking Edit.");
+                  log("No search input found after clicking Edit.");
               }
           } else {
               log("No 'Edit address' button found. Maybe we are already in zone!");
