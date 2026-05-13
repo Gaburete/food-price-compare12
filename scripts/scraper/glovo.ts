@@ -62,6 +62,11 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                   log("Waiting 5 seconds for Google Places to load suggestions...");
                   await page.waitForTimeout(5000); 
                   
+                  try {
+                      const snap = await page.screenshot({ encoding: 'base64' });
+                      log("B64_BEFORE_ARROW:" + snap);
+                  } catch(e) {}
+                  
                   log("Pressing ArrowDown and Enter to select prediction!");
                   await page.keyboard.press("ArrowDown");
                   await page.waitForTimeout(800);
