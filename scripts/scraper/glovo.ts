@@ -54,9 +54,26 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                   log("Found 'Use current location' button! Clicking it...");
                   await currentLocationBtn.click();
                   
-                  // După click, modalul se închide și adresa este setată automat folosind HTML5 Geolocation
-                  log("Waiting 5 seconds for location to be resolved by HTML5 Geolocation...");
-                  await page.waitForTimeout(5000);
+                  log("Waiting for location to be resolved by HTML5 Geolocation...");
+                  await page.waitForTimeout(3000);
+                  
+                  // Chiar și cu GPS, Glovo cere confirmarea tipului de locație și confirmarea finală!
+                  log("Looking for Location Type confirmation modal...");
+                  const typeBtn = page.locator('button:has-text("Altele"), button:has-text("Other"), button:has-text("Acasă"), button:has-text("Home"), button:has-text("Casă")').first();
+                  if (await typeBtn.count() > 0) {
+                      await typeBtn.click();
+                      await page.waitForTimeout(2000);
+                  }
+                  
+                  log("Looking for final Confirm button...");
+                  const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Confirmă")').first();
+                  if (await confirmBtn.count() > 0) {
+                      log("Confirming GPS address!");
+                      await confirmBtn.click();
+                      await page.waitForTimeout(4000);
+                  } else {
+                      log("Nu am găsit butonul final de Confirmă după locația curentă!");
+                  }
               } else {
                   log("No 'Use current location' button found.");
               }
