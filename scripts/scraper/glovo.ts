@@ -15,66 +15,66 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
   const log = (msg: string) => { console.log(msg); debugLogs.push(msg); };
 
   try {
-    log("Navigating to home page to set address...");
-    await page.goto("https://glovoapp.com/ro/ro/constanta/", { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(3000); 
-
-    const title = await page.title();
-    log(`Page title: ${title}`);
-
-    // Accept cookies if they appear
-    try {
-        const cookieBtn = page.locator('button:has-text("Acceptați toate"), button:has-text("Accept all"), #onetrust-accept-btn-handler').first();
-        if (await cookieBtn.count() > 0) {
-           log("Accepting cookies...");
-           await cookieBtn.click();
-           await page.waitForTimeout(1000);
-        }
-    } catch(e) {}
-
-    // Setăm adresa pe pagina principală
-    try {
-        // Căutăm inputul mare de pe homepage (Care este adresa ta? / What's your address?)
-        const homeTriggerInput = page.locator('input[placeholder*="adres"], input[placeholder*="address"], input[data-test-id="address-input"]').first();
-        if (await homeTriggerInput.count() > 0) {
-            log("Found home input trigger. Clicking it...");
-            await homeTriggerInput.click({ force: true });
-            await page.waitForTimeout(2000);
-            
-            // Căutăm inputul de căutare din modalul care apare (Caută adresa / Search address)
-            const searchInput = page.locator('input[placeholder*="Caut"], input[placeholder*="Search"], input[type="text"]:not([readonly])').last();
-            if (await searchInput.count() > 0) {
-                log("Found search input in modal. Typing Bulevardul Tomis 47...");
-                await searchInput.fill("Bulevardul Tomis 47");
-                await page.waitForTimeout(3000); // Așteptăm Google Places
-                
-                // Selectăm prima predicție din listă
-                const firstSuggestion = page.locator('.address-suggestions__list-item, [data-test-id="address-suggestion"], .address-list-item').first();
-                if (await firstSuggestion.count() > 0) {
-                    log("Found address prediction. Clicking...");
-                    await firstSuggestion.click({ force: true });
-                    await page.waitForTimeout(4000);
-                } else {
-                    log("No prediction found on home page!");
-                }
-            } else {
-                log("Nu am găsit inputul de căutare în modal!");
-            }
-        } else {
-            log("Nu am găsit inputul de trigger pe home!");
-        }
-    } catch (e: any) {
-        log(`Eroare setare adresă pe home: ${e.message}`);
-    }
-
     const restaurantsToScrape = [
       { id: "mcdonalds-constanta", url: "https://glovoapp.com/ro/ro/constanta/stores/mcdonald-s-cta" }
     ];
 
     for (const rest of restaurantsToScrape) {
-      log(`Navigating to ${rest.url}`);
+      log(`Navigating directly to ${rest.url}`);
       await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(3000);
+
+      const title = await page.title();
+      log(`Page title: ${title}`);
+
+      // Accept cookies if they appear
+      try {
+          const cookieBtn = page.locator('button:has-text("Acceptați toate"), button:has-text("Accept all"), #onetrust-accept-btn-handler').first();
+          if (await cookieBtn.count() > 0) {
+             log("Accepting cookies...");
+             await cookieBtn.click();
+             await page.waitForTimeout(1000);
+          }
+      } catch(e) {}
+
+      // Verificăm dacă apare popup-ul de 'în afara zonei' pe pagina McDonald's
+      try {
+          const editBtn = page.locator('button:has-text("Editeaz"), button:has-text("Edit")').first();
+          if (await editBtn.count() > 0) {
+              log("Found 'Edit address' button in the Out of Zone modal. Clicking...");
+              await editBtn.click({ force: true });
+              await page.waitForTimeout(2000);
+              
+              // Pe McDonald's, când apeși edit, apare inputul fals/readonly
+              const fakeInput = page.locator('input[readonly], input[placeholder*="adres"], input[placeholder*="address"]').first();
+              if (await fakeInput.count() > 0) {
+                  log("Found fake readonly input. Clicking to open real search...");
+                  await fakeInput.click({ force: true });
+                  await page.waitForTimeout(2000);
+                  
+                  // Acum focusul e pe inputul real, tastăm orbește sau îl găsim
+                  log("Typing address...");
+                  await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 100 });
+                  await page.waitForTimeout(3000); // Așteptăm Google Places
+                  
+                  log("Pressing ArrowDown and Enter to select prediction!");
+                  await page.keyboard.press("ArrowDown");
+                  await page.waitForTimeout(500);
+                  await page.keyboard.press("Enter");
+                  await page.waitForTimeout(4000);
+                  
+                  log("Re-loading store page just in case...");
+                  await page.goto(rest.url, { waitUntil: 'domcontentloaded' });
+                  await page.waitForTimeout(3000);
+              } else {
+                  log("No fake input found after clicking Edit.");
+              }
+          } else {
+              log("No 'Edit address' button found. Maybe we are already in zone!");
+          }
+      } catch (e: any) {
+          log(`Eroare la setarea adresei pe pagina magazinului: ${e.message}`);
+      }
 
       try {
         // 1. Dăm click pe primul produs disponibil
