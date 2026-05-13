@@ -183,68 +183,121 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
         });
 
         const menuItems = await page.evaluate((url) => {
-          const items: any[] = [];
-          
-          const productElements = document.querySelectorAll('.product-row, .store-product, [data-test-id="product-row"], .product-card, [data-test-id="product-layout"]');
+          let productElements = Array.from(document.querySelectorAll('.product-row, .store-product, [data-test-id="product-row"], .product-card, [data-test-id="product-layout"]'));
           
           const evaluateDebug: string[] = [];
-          evaluateDebug.push(`Found ${productElements.length} product elements.`);
+          evaluateDebug.push(`Found ${productElements.length} product elements using standard selectors.`);
           
-          productElements.forEach(card => {
-             // Numele produsului
-             const nameEl = card.querySelector('[data-test-id="product-row-name"] span, [data-test-id="product-name"], [data-test-id="product-row-name"], h2, .product-row__name, .product-card-title, h3, h4, span[class*="name"]');
-             let name = nameEl ? nameEl.textContent?.trim() || "" : "";
-             
-             // Prețul produsului
-             const priceEl = card.querySelector('[data-test-id="product-row-price"], [data-test-id="product-price"], .product-row__price, .product-price, .price, span[class*="price"]');
-             const priceText = priceEl ? priceEl.textContent?.trim() || "" : "";
-             const priceMatch = priceText.match(/([\d,]+)/);
-             const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 0;
-             
-             evaluateDebug.push(`Card innerText length: ${card.textContent?.length}. Name extracted: '${name}', Price extracted: ${price} (from '${priceText}')`);
-             
-             // Descrierea
-             const descEl = card.querySelector('[data-test-id="product-description"], .product-row__info, span[class*="description"]');
-             const description = descEl ? descEl.textContent?.trim() || "" : "";
-             
-             // Imaginea
-             const imgEl = card.querySelector('img');
-             const imageUrl = imgEl ? (imgEl.getAttribute('src') || "") : "";
-             
-             // Categoria
-             let category = "Meniu";
-             let parent = card.parentElement;
-             let depth = 0;
-             while(parent && depth < 10) {
-                 // De obicei titlul categoriei este într-un h2 anterior cardurilor
-                 const heading = parent.querySelector('h2');
-                 if (heading && heading.textContent) {
-                     category = heading.textContent.trim();
-                     break;
-                 }
-                 parent = parent.parentElement;
-                 depth++;
-             }
+          // Hybrid approach: If Glovo removed data-test-id (A/B testing), we fallback to h2 heuristic
+          if (productElements.length === 0) {
+              evaluateDebug.push("Falling back to h2 heuristic...");
+              const h2s = Array.from(document.querySelectorAll('h2'));
+              h2s.forEach(h2 => {
+                  let name = h2.textContent?.trim() || "";
+                  if (name.length > 2 && name.length < 100) {
+                      // Find price nearby
+                      let parent = h2.parentElement;
+                      let price = 0;
+                      let priceText = "";
+                      let depth = 0;
+                      let cardContainer = parent;
+                      while(parent && depth < 4) {
+                          const text = parent.textContent || "";
+                          const priceMatch = text.match(/([\d,]+)\s*(RON|lei)/i);
+                          if (priceMatch) {
+                              priceText = priceMatch[0];
+                              price = parseFloat(priceMatch[1].replace(',', '.'));
+                              cardContainer = parent;
+                              break;
+                          }
+                          parent = parent.parentElement;
+                          depth++;
+                      }
+                      
+                      if (price > 0) {
+                         // Find category
+                         let category = "Meniu";
+                         let catParent = cardContainer?.parentElement;
+                         let catDepth = 0;
+                         while(catParent && catDepth < 10) {
+                             // The category is usually a previous sibling or in a parent wrapper
+                             const siblingH2 = catParent.previousElementSibling?.querySelector('h2');
+                             if (siblingH2 && siblingH2 !== h2) {
+                                 category = siblingH2.textContent?.trim() || category;
+                                 break;
+                             }
+                             catParent = catParent.parentElement;
+                             catDepth++;
+                         }
 
-             if (name && price > 0 && name.length < 100) {
-                 const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-                 items.push({
-                     id,
-                     name,
-                     description,
-                     category,
-                     imageUrl,
-                     prices: [{
-                         platform: "glovo",
-                         available: true,
-                         price: price,
-                         deepLink: url
-                     }]
-                 });
-             } else {
-                 evaluateDebug.push(`SKIPPED: Name='${name}', Price=${price}, NameLen=${name.length}`);
-             }
-          });
+                         const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                         const imgEl = cardContainer?.querySelector('img');
+                         items.push({
+                             id, name, description: "", category,
+                             imageUrl: imgEl ? (imgEl.getAttribute('src') || "") : "",
+                             prices: [{ platform: "glovo", available: true, price, deepLink: url }]
+                         });
+                         evaluateDebug.push(`Heuristic found: ${name} - ${price}`);
+                      }
+                  }
+              });
+          } else {
+              productElements.forEach(card => {
+                 // Numele produsului
+                 const nameEl = card.querySelector('[data-test-id="product-row-name"] span, [data-test-id="product-name"], [data-test-id="product-row-name"], h2, .product-row__name, .product-card-title, h3, h4, span[class*="name"]');
+                 let name = nameEl ? nameEl.textContent?.trim() || "" : "";
+                 
+                 // Prețul produsului
+                 const priceEl = card.querySelector('[data-test-id="product-row-price"], [data-test-id="product-price"], .product-row__price, .product-price, .price, span[class*="price"]');
+                 const priceText = priceEl ? priceEl.textContent?.trim() || "" : "";
+                 const priceMatch = priceText.match(/([\d,]+)/);
+                 const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 0;
+                 
+                 evaluateDebug.push(`Card innerText length: ${card.textContent?.length}. Name extracted: '${name}', Price extracted: ${price} (from '${priceText}')`);
+                 
+                 // Descrierea
+                 const descEl = card.querySelector('[data-test-id="product-description"], .product-row__info, span[class*="description"]');
+                 const description = descEl ? descEl.textContent?.trim() || "" : "";
+                 
+                 // Imaginea
+                 const imgEl = card.querySelector('img');
+                 const imageUrl = imgEl ? (imgEl.getAttribute('src') || "") : "";
+                 
+                 // Categoria
+                 let category = "Meniu";
+                 let parent = card.parentElement;
+                 let depth = 0;
+                 while(parent && depth < 10) {
+                     // De obicei titlul categoriei este într-un h2 anterior cardurilor
+                     const heading = parent.querySelector('h2');
+                     if (heading && heading.textContent) {
+                         category = heading.textContent.trim();
+                         break;
+                     }
+                     parent = parent.parentElement;
+                     depth++;
+                 }
+
+                 if (name && price > 0 && name.length < 100) {
+                     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                     items.push({
+                         id,
+                         name,
+                         description,
+                         category,
+                         imageUrl,
+                         prices: [{
+                             platform: "glovo",
+                             available: true,
+                             price: price,
+                             deepLink: url
+                         }]
+                     });
+                 } else {
+                     evaluateDebug.push(`SKIPPED: Name='${name}', Price=${price}, NameLen=${name.length}`);
+                 }
+              });
+          }
           
           // Eliminăm duplicatele după id
           const uniqueItems: any[] = [];
