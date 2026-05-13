@@ -189,7 +189,7 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
           
           productElements.forEach(card => {
              // Numele produsului
-             const nameEl = card.querySelector('[data-test-id="product-name"], [data-test-id="product-row-name"], h2, .product-row__name, .product-card-title, h3, h4, span[class*="name"]');
+             const nameEl = card.querySelector('[data-test-id="product-row-name"] span, [data-test-id="product-name"], [data-test-id="product-row-name"], h2, .product-row__name, .product-card-title, h3, h4, span[class*="name"]');
              let name = nameEl ? nameEl.textContent?.trim() || "" : "";
              
              // Prețul produsului
