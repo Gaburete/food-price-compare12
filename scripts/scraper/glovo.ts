@@ -41,18 +41,22 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
       try {
           const editBtn = page.locator('button:has-text("Editeaz"), button:has-text("Edit")').first();
           if (await editBtn.count() > 0) {
-              log("Found 'Edit address' button in the Out of Zone modal. Clicking...");
-              await editBtn.click({ force: true });
+              log("Found 'Edit address' button in the Out of Zone modal. Clicking naturally...");
+              await editBtn.click(); // Fără force:true pentru a ne asigura că e vizibil și interactiv
               await page.waitForTimeout(2000);
               
-              // Pe McDonald's, când apeși edit, apare direct modalul de căutare "Unde să livrăm?"
-              const realInput = page.locator('input[placeholder*="Caut"], input[placeholder*="Search"], input[data-testid="address-input"], input[type="text"]:not([readonly])').last();
-              if (await realInput.count() > 0) {
+              // Așteptăm explicit modalul de căutare adresă (evităm inputul general de pe fundal)
+              const realInput = page.getByPlaceholder(/caut.*adres/i).or(page.getByPlaceholder(/search.*address/i)).or(page.locator('[data-test-id="address-search-input"], [data-test-id="address-input"]')).first();
+              
+              log("Waiting for real search input to be visible...");
+              await realInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => log("Input not visible after 5s!"));
+              
+              if (await realInput.count() > 0 && await realInput.isVisible()) {
                   log("Found real search input. Typing address via keyboard...");
-                  await realInput.click({ force: true });
+                  await realInput.click();
                   await page.waitForTimeout(500);
                   
-                  // .fill() nu declanșează mereu dropdown-ul Google Places, folosim tastarea simulată
+                  // Folosim tastarea simulată
                   await page.keyboard.type("Bulevardul Tomis 47, Constanța", { delay: 150 });
                   
                   log("Waiting 5 seconds for Google Places to load suggestions...");
@@ -68,18 +72,18 @@ export async function scrapeGlovo(context: BrowserContext, address: string) {
                   log("Looking for Location Type confirmation modal...");
                   const typeBtn = page.locator('button:has-text("Altele"), button:has-text("Other"), button:has-text("Acasă"), button:has-text("Home")').first();
                   if (await typeBtn.count() > 0) {
-                      await typeBtn.click({ force: true });
+                      await typeBtn.click();
                       await page.waitForTimeout(1000);
                   }
                   
                   const confirmBtn = page.locator('button:has-text("Confirm"), button:has-text("Confirmă")').first();
                   if (await confirmBtn.count() > 0) {
                       log("Confirming address!");
-                      await confirmBtn.click({ force: true });
+                      await confirmBtn.click();
                       await page.waitForTimeout(4000);
                   }
               } else {
-                  log("No search input found after clicking Edit.");
+                  log("No search input found or it wasn't visible after clicking Edit.");
               }
           } else {
               log("No 'Edit address' button found. Maybe we are already in zone!");
