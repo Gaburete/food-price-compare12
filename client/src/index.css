@@ -75,22 +75,22 @@
 }
 
 .dark {
-  --background: #0D0E12;
-  --foreground: #F5F5F5;
-  --card: #16181D;
-  --card-foreground: #F5F5F5;
-  --popover: #16181D;
-  --popover-foreground: #F5F5F5;
-  --secondary: #1F2228;
-  --secondary-foreground: #A1A1A1;
-  --muted: #1F2228;
-  --muted-foreground: #A1A1A1;
-  --accent: #1F2228;
-  --accent-foreground: #F5F5F5;
-  --border: #2A2D35;
-  --input: #2A2D35;
+  --background: #0B0F19;
+  --foreground: #F8FAFC;
+  --card: #111827;
+  --card-foreground: #F8FAFC;
+  --popover: #111827;
+  --popover-foreground: #F8FAFC;
+  --secondary: #1E293B;
+  --secondary-foreground: #94A3B8;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #1E293B;
+  --accent-foreground: #F8FAFC;
+  --border: #1E293B;
+  --input: #1E293B;
   --ring: #E8400C;
-  --sidebar: #16181D;
+  --sidebar: #111827;
 }
 
 @layer base {
@@ -99,7 +99,7 @@
   }
   body {
     @apply bg-background text-foreground transition-colors duration-500;
-    font-family: 'Sora', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   /* Scrollbar personalizat */
